@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+ego && ginkgo -r
+rm ego.go

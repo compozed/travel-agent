@@ -1,0 +1,27 @@
+---
+name: nfs-production
+public: true
+serial: true
+plan:
+- aggregate:
+  - get: templates
+    passed: [ nfs-staging ]
+  - get: nfs-release
+    passed: [ nfs-staging ]
+  - get: deployments
+  - get: ci
+- task: vsphere-stemcell
+  file: ci/tasks/download.yml
+  config: { params: { url: 'https://blobs.example.com/stemcell.tgz' } }
+- task: spruce-merge
+  file: ci/tasks/spruce-merge.yml
+  config:
+    params:
+      files: templates/nfs/manifest.yml deployments/production/nfs/stub.yml
+- put: nfs-production-deployment
+  params:
+    manifest: spruce-merge/manifest.yml
+    releases:
+    - nfs-release/*.tgz
+    stemcells:
+    - vsphere-stemcell/*.tgz

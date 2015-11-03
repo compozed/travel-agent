@@ -1,0 +1,36 @@
+<%! func NfsTmpl(w io.Writer, envs []Env) error %>
+<%% import . "github.allstate.com/CompoZedPlatform/concourse-workspace/models" %%>
+---
+jobs:
+<% for _, env := range envs { %>
+- name: <%= fmt.Sprintf("nfs-%s", env.Name) %>
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: templates
+  <% if env.DependsOn != "" {%>
+      passed: [ <%= env.DependsOn %> ]
+  <% } %>
+    - get: nfs-release
+  <% if env.DependsOn != "" {%>
+      passed: [ <%= env.DependsOn %> ]
+  <% } %>
+    - get: deployments
+    - get: ci
+  - task: vsphere-stemcell
+    file: ci/tasks/download.yml
+    config: { params: { url: 'https://blobs.example.com/stemcell.tgz' } }
+  - task: spruce-merge
+    file: ci/tasks/spruce-merge.yml
+    config:
+      params:
+        files: <%= fmt.Sprintf("templates/nfs/manifest.yml deployments/%s/nfs/stub.yml", env.Name) %>
+  - put: <%= fmt.Sprintf("nfs-%s-deployment", env.Name) %>
+    params:
+      manifest: spruce-merge/manifest.yml
+      releases:
+      - nfs-release/*.tgz
+      stemcells:
+      - vsphere-stemcell/*.tgz
+<% } %>
