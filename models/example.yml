@@ -1,0 +1,3 @@
+- name: dev
+- name: prod
+  depends_on: a-devs-job
