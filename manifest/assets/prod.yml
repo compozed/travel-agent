@@ -1,0 +1,11 @@
+---
+jobs:
+- name: FOO-prod
+  serial: true
+  public: true
+  plan: []
+
+resources:
+- name: prod-FOO-deployment
+  type: bosh-deployment
+

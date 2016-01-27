@@ -1,4 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-ego -package ci && ginkgo -r -skipPackage dummy
-rm ego.go
+rm -rf dummy
+ego -package main -o manifest.go 
+mv manifest.go manifest/.
+ginkgo -r -skipPackage dummy

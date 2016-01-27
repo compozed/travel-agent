@@ -1,0 +1,2 @@
+--ignore-dir=dummy
+--ignore-file=is:manifest.go

@@ -1,0 +1,11 @@
+---
+jobs:
+- name: FOO-dev
+  serial: true
+  public: true
+  plan: []
+
+resources: 
+- name: dev-FOO-deployment
+  type: bosh-deployment
+
