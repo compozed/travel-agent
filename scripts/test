@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
-ego -package ci && ginkgo -r
+ego -package ci && ginkgo -r -skipPackage dummy
 rm ego.go

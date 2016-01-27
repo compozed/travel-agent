@@ -1,0 +1,9 @@
+#!/bin/bash
+
+rm -rf dummy
+mkdir dummy 
+pushd dummy
+  ./../bin/travel-agent bootstrap dummy
+  ./../bin/travel-agent book
+popd
+
