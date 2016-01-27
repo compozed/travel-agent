@@ -61,7 +61,7 @@ bootstrap() {
     dirs=(assets/dev.yml assets/prod.yml manifest.ego manifest_test.go)
 
     for dir in "${dirs[@]}"; do
-      sed -i '' -e "s/FOO/$NAME" $dir
+      sed -i '' -e "s/FOO/$NAME/g" $dir
     done
   popd
 }
