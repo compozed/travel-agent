@@ -1,3 +1,6 @@
+---
+name: FOO
+envs:
 - name: dev
 - name: prod
-  depends_on: a-devs-job
+  depends_on: dev

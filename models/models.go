@@ -5,19 +5,23 @@ import (
 	. "io/ioutil"
 )
 
+type Config struct {
+	Name string `yaml:"name"` // Supporting both JSON and YAML.
+	Envs []Env  `yaml:"envs"` // Supporting both JSON and YAML.
+}
+
 type Env struct {
 	Name      string `yaml:"name"`       // Supporting both JSON and YAML.
 	DependsOn string `yaml:"depends_on"` // Supporting both JSON and YAML.
 }
 
-func Load(y []byte) ([]Env, error) {
-
-	var envs []Env
-	err := yaml.Unmarshal(y, &envs)
-	return envs, err
+func Load(y []byte) (Config, error) {
+	var config Config
+	err := yaml.Unmarshal(y, &config)
+	return config, err
 }
 
-func LoadFromFile(path string) ([]Env, error) {
+func LoadFromFile(path string) (Config, error) {
 	y, err := ReadFile(path)
 	if err != nil {
 

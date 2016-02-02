@@ -27,10 +27,11 @@ var _ = Describe("Manifest generation", func() {
 			var buf bytes.Buffer
 
 			if indexLocal > 0 {
-				envLocal.DependsOn = fmt.Sprintf("FOO-%s", envs[indexLocal-1].Name)
+				envLocal.DependsOn = envs[indexLocal-1].Name
 			}
 
-			err = ManifestTmpl(&buf, []Env{envLocal})
+			config := Config{"FOO", []Env{envLocal}}
+			err = ManifestTmpl(&buf, config)
 			Ω(err).ShouldNot(HaveOccurred())
 
 			err = yaml.Unmarshal(buf.Bytes(), &actualManifest)
@@ -57,18 +58,22 @@ var _ = Describe("Manifest generation", func() {
 		})
 
 		Describe("When rendering resources", func() {
-			expectedResources := ReadYAML(fmt.Sprintf("assets/%s.yml", envLocal.Name))["resources"].([]interface{})
+			expectedYaml := ReadYAML(fmt.Sprintf("assets/%s.yml", envLocal.Name))
 
-			for _, resource := range expectedResources {
-				localExpectedResource := resource.(map[interface{}]interface{})
+			if expectedYaml["resources"] != nil {
+				expectedResources := expectedYaml["resources"].([]interface{})
 
-				It(fmt.Sprintf("Should render %s", localExpectedResource["name"]), func() {
-					resourceName := localExpectedResource["name"].(string)
+				for _, resource := range expectedResources {
+					localExpectedResource := resource.(map[interface{}]interface{})
 
-					actualResource := GetResource(actualManifest, resourceName)
+					It(fmt.Sprintf("Should render %s", localExpectedResource["name"]), func() {
+						resourceName := localExpectedResource["name"].(string)
 
-					Expect(actualResource).Should(Equal(localExpectedResource))
-				})
+						actualResource := GetResource(actualManifest, resourceName)
+
+						Expect(actualResource).Should(Equal(localExpectedResource))
+					})
+				}
 			}
 		})
 	}

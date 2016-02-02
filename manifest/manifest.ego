@@ -1,15 +1,15 @@
-<%! func ManifestTmpl(w io.Writer, envs []Env) error %>
+<%! func ManifestTmpl(w io.Writer, config Config) error %>
 <%% import . "github.com/compozed/travel-agent/models" %%>
 ---
 jobs:
-<% for _, env := range envs { %>
-- name: <%= fmt.Sprintf("FOO-%s", env.Name) %>
+<% for _, env := range config.Envs { %>
+- name: <%= fmt.Sprintf("%s-%s",  config.Name, env.Name) %>
   serial: true
   public: true
   plan: []
 <% } %>
 resources:
-<% for _, env := range envs { %>
-- name: <%= fmt.Sprintf("%s-FOO-deployment", env.Name) %>
+<% for _, env := range config.Envs { %>
+- name: <%= fmt.Sprintf("%s-%s-deployment", env.Name, config.Name ) %>
   type: bosh-deployment
 <% } %>

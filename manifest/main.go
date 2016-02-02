@@ -10,12 +10,12 @@ import (
 func main() {
 	var buf bytes.Buffer
 
-	envs, err := LoadFromFile(os.Args[1])
+	config, err := LoadFromFile(os.Args[1])
 	if err != nil {
 		panic(err)
 	}
 
-	err = ManifestTmpl(&buf, envs)
+	err = ManifestTmpl(&buf, config)
 	if err != nil {
 		panic(err)
 	}

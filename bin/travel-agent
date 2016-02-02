@@ -1,11 +1,14 @@
 #!/bin/bash
 
-# set -x
+set -e
+
 red=`tput setaf 1`
 green=`tput setaf 2`
 reset=`tput sgr0`
 
 conf_dir=~/.travel-agent
+
+trap clean EXIT
 
 init(){
   # Check that ego is installed
@@ -40,45 +43,61 @@ target(){
   echo $TARGET > $conf_dir/TARGET
 }
 
-bootstrap() {
-  NAME=$1
-  BASE_DIR=$2
-
-  echo $NAME
-
-  if [  -z "$NAME" ]
-    then
-      echo "${red}You must provide a name${reset}"
-      echo ''
-      echo 'USAGE: ./travel-agent bootstrap NAME'
-      exit 1
-  fi
-
-  mkdir -p ci
-  cp -r $GOPATH/src/github.com/compozed/travel-agent/manifest ci/.
-
-  pushd ci/manifest
-    dirs=(assets/dev.yml assets/prod.yml manifest.ego manifest_test.go)
-
-    for dir in "${dirs[@]}"; do
-      sed -i '' -e "s/FOO/$NAME/g" $dir
-    done
-  popd
-}
 
 book() {
+  echo 'USAGE: ./travel-agent book [TAVEL_AGENT_CONFIG] [SPRUCE_FILE]'
+  TARGET=$(cat $conf_dir/TARGET)
+  TRAVEL_AGENT_CONFIG=$1
+  SPRUCE_FILE=$2
+
+  NAME=$(grep -E "^name:" $TRAVEL_AGENT_CONFIG | awk -F " " '{print $2}')
+
+  manifest_folder=$GOPATH/src/github.com/compozed/travel-agent/manifest
+  pwd
+  mkdir -p ci && cp -rn $manifest_folder ci/. 2>/dev/null || :
+
   pushd ci/manifest
+    cp $manifest_folder/manifest_test.go .
+    cp $manifest_folder/manifest_suite_test.go .
+    cp $manifest_folder/main.go .
+
+    sed -i '' -e "s/FOO/$NAME/g" manifest.ego 
+    sed -i '' -e "s/FOO/$NAME/g" manifest_test.go
+
     clean
 
     # Compile .ego into manifest.go
     ego -package main -o manifest.go
 
     # Run test suite to match template with assets/*
-    ginkgo -r
+    ginkgo -r -failFast
 
-    # deploy
-    deploy
-    clean
+    # Creates a manifest if a TRAVEL_AGENT_CONFIG was provided
+    if [ -z "$TRAVEL_AGENT_CONFIG" ] ; then
+      echo '===> INFO: provide TAVEL_AGENT_CONFIG if you want to generate a manifest'
+    else
+      pre_merged_manifest=.tmp/pre_merged_manifest.yml
+      mkdir -p .tmp 
+      go run manifest.go main.go $TRAVEL_AGENT_CONFIG > $pre_merged_manifest
+    fi
+
+    # Merges file with spruce if SPRUCE_FILE was provided
+    if [ -z "$SPRUCE_FILE" ] ; then
+      manifest=$pre_merged_manifest
+      echo '===> INFO: provide SPRUCE_FILE if you want to generate a manifest'
+    else
+      manifest=.tmp/concourse_deployment_manifest.yml
+      spruce merge --prune config $pre_merged_manifest $SPRUCE_FILE > $manifest
+    fi
+
+    # Deploys if TARGET is set
+    if [ -z "$TARGET" ] ; then
+      echo "${red}Concourse target not set${reset}"
+      echo ''
+      echo 'Run ./travel-agent target'
+    else
+      fly -t $TARGET configure -c $manifest --paused=false $NAME
+    fi
   popd
 
 }
@@ -86,16 +105,6 @@ book() {
 # Clean old atifacts
 clean(){
   rm -f manifest.go manifest 
-}
-
-# Deploys new pipeline to concourse 
-deploy(){
-  target=$(cat $conf_dir/TARGET)
-}
-
-# Run test suite to match template with assets/*
-run_tests(){
-  ginkgo -r
 }
 
 # Deploys new pipeline to concourse 
@@ -129,12 +138,11 @@ cat << EOM
 
     help
     target      - Sets concourse target. EG: https://1.2.3.4:9090
-    bootstrap - Bootstraps a new ci folder with travel agent structure
     book  - test and deploy your pipeline template (manifest.ego) against 2 dummy assets(dev and prod)
 EOM
 }
 
-if [[ $1 =~ ^(bootstrap|book|target|help)$ ]]; then
+if [[ $1 =~ ^(book|target|help)$ ]]; then
   case $1 in
     help)
       help
@@ -142,11 +150,8 @@ if [[ $1 =~ ^(bootstrap|book|target|help)$ ]]; then
     target)
       target $2
       ;;
-    bootstrap)
-      bootstrap $2 $3
-      ;;
     book)
-      book 
+      book $2 $3
       ;;
   esac
 else
