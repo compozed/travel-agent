@@ -44,6 +44,13 @@ target(){
 }
 
 
+cancel(){
+  echo 'USAGE: ./travel-agent cancel PIPELINE_NAME'
+  TARGET=$(cat $conf_dir/TARGET)
+
+  fly -t $TARGET destroy-pipeline $1
+}
+
 book() {
   echo 'USAGE: ./travel-agent book [TAVEL_AGENT_CONFIG] [SPRUCE_FILE]'
   TARGET=$(cat $conf_dir/TARGET)
@@ -61,6 +68,8 @@ book() {
     cp $manifest_folder/manifest_suite_test.go .
     cp $manifest_folder/main.go .
 
+    sed -i '' -e "s/FOO/$NAME/g" assets/dev.yml
+    sed -i '' -e "s/FOO/$NAME/g" assets/prod.yml
     sed -i '' -e "s/FOO/$NAME/g" manifest.ego 
     sed -i '' -e "s/FOO/$NAME/g" manifest_test.go
 
@@ -139,10 +148,11 @@ cat << EOM
     help
     target      - Sets concourse target. EG: https://1.2.3.4:9090
     book  - test and deploy your pipeline template (manifest.ego) against 2 dummy assets(dev and prod)
+    cancel - deletes a pipeline
 EOM
 }
 
-if [[ $1 =~ ^(book|target|help)$ ]]; then
+if [[ $1 =~ ^(book|cancel|target|help)$ ]]; then
   case $1 in
     help)
       help
@@ -152,6 +162,9 @@ if [[ $1 =~ ^(book|target|help)$ ]]; then
       ;;
     book)
       book $2 $3
+      ;;
+    cancel)
+      cancel $2
       ;;
   esac
 else
