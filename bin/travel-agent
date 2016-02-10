@@ -4,6 +4,7 @@ set -e
 
 red=`tput setaf 1`
 green=`tput setaf 2`
+yellow=`tput setaf 3`
 reset=`tput sgr0`
 
 conf_dir=~/.travel-agent
@@ -44,35 +45,39 @@ target(){
 }
 
 
-cancel(){
-  echo 'USAGE: ./travel-agent cancel PIPELINE_NAME'
-  TARGET=$(cat $conf_dir/TARGET)
+boostrap(){
+  NAME=$1
 
-  fly -t $TARGET destroy-pipeline $1
-}
-
-book() {
-  echo 'USAGE: ./travel-agent book [TAVEL_AGENT_CONFIG] [SPRUCE_FILE]'
-  TARGET=$(cat $conf_dir/TARGET)
-  TRAVEL_AGENT_CONFIG=$1
-  SPRUCE_FILE=$2
-
-  NAME=$(grep -E "^name:" $TRAVEL_AGENT_CONFIG | awk -F " " '{print $2}')
+  if [  -z "$NAME" ]
+    then
+      echo "${red}You must provide a concourse target${reset}"
+      echo ''
+      echo 'USAGE: ./travel-agent boostrap NAME'
+      exit 1
+  fi
 
   manifest_folder=$GOPATH/src/github.com/compozed/travel-agent/manifest
-  pwd
   mkdir -p ci && cp -rn $manifest_folder ci/. 2>/dev/null || :
 
-  pushd ci/manifest
+  pushd ci/manifest > /dev/null
     cp $manifest_folder/manifest_test.go .
     cp $manifest_folder/manifest_suite_test.go .
     cp $manifest_folder/main.go .
 
-    sed -i '' -e "s/FOO/$NAME/g" assets/dev.yml
-    sed -i '' -e "s/FOO/$NAME/g" assets/prod.yml
     sed -i '' -e "s/FOO/$NAME/g" manifest.ego 
     sed -i '' -e "s/FOO/$NAME/g" manifest_test.go
+  popd > /dev/null
+}
 
+book() {
+  TARGET=$(cat $conf_dir/TARGET)
+  TRAVEL_AGENT_CONFIG=$1
+  SPRUCE_FILE=$2
+
+
+
+
+  pushd ci/manifest > /dev/null
     clean
 
     # Compile .ego into manifest.go
@@ -83,8 +88,9 @@ book() {
 
     # Creates a manifest if a TRAVEL_AGENT_CONFIG was provided
     if [ -z "$TRAVEL_AGENT_CONFIG" ] ; then
-      echo '===> INFO: provide TAVEL_AGENT_CONFIG if you want to generate a manifest'
+      echo "${yellow}===> INFO: provide TAVEL_AGENT_CONFIG if you want to generate a manifest${reset}"
     else
+      NAME=$(grep -E "^name:" $TRAVEL_AGENT_CONFIG | awk -F " " '{print $2}')
       pre_merged_manifest=.tmp/pre_merged_manifest.yml
       mkdir -p .tmp 
       go run manifest.go main.go $TRAVEL_AGENT_CONFIG > $pre_merged_manifest
@@ -93,44 +99,25 @@ book() {
     # Merges file with spruce if SPRUCE_FILE was provided
     if [ -z "$SPRUCE_FILE" ] ; then
       manifest=$pre_merged_manifest
-      echo '===> INFO: provide SPRUCE_FILE if you want to generate a manifest'
+      echo "${yellow}===> INFO: provide SPRUCE_FILE if you want to generate a manifest${reset}"
     else
       manifest=.tmp/concourse_deployment_manifest.yml
       spruce merge --prune config $pre_merged_manifest $SPRUCE_FILE > $manifest
     fi
 
     # Deploys if TARGET is set
-    if [ -z "$TARGET" ] ; then
-      echo "${red}Concourse target not set${reset}"
-      echo ''
-      echo 'Run ./travel-agent target'
+    if [ -z "$TARGET" ] || [ -z "$NAME" ]; then
+      echo "${yellow}===> INFO: set target and provie TRAVEL_AGENT_CONFIG if you want to deploy${reset}"
     else
       fly -t $TARGET configure -c $manifest --paused=false $NAME
     fi
-  popd
+  popd > /dev/null
 
 }
 
 # Clean old atifacts
 clean(){
   rm -f manifest.go manifest 
-}
-
-# Deploys new pipeline to concourse 
-deploy(){
-  target=$(cat $conf_dir/TARGET)
-  # travel_agent_conf_path=$2
-  # stub_file=$3
-  # pipeline_name=$4 
-
-  # manifest=.tmp/concourse_deployment_manifest.yml
-  # pre_merged_manifest=.tmp/pre_merged_manifest.yml
-
-  # [ ! -d .tmp ] && mkdir .tmp 
-  # go run manifest.go main.go $travel_agent_conf_path > $pre_merged_manifest
-  # cp $pre_merged_manifest $manifest
-  # spruce merge --prune config $pre_merged_manifest  $stub_file > $manifest
-  # fly -t $target configure -c $manifest --paused=false $pipeline_name
 }
 
 help() {
@@ -146,13 +133,13 @@ cat << EOM
   Subcommands:
 
     help
+    bootstrap   - Generates and upgrades travel agent project
     target      - Sets concourse target. EG: https://1.2.3.4:9090
     book  - test and deploy your pipeline template (manifest.ego) against 2 dummy assets(dev and prod)
-    cancel - deletes a pipeline
 EOM
 }
 
-if [[ $1 =~ ^(book|cancel|target|help)$ ]]; then
+if [[ $1 =~ ^(book|bootstrap|target|help)$ ]]; then
   case $1 in
     help)
       help
@@ -160,11 +147,11 @@ if [[ $1 =~ ^(book|cancel|target|help)$ ]]; then
     target)
       target $2
       ;;
+    target)
+      boostrap $2
+      ;;
     book)
       book $2 $3
-      ;;
-    cancel)
-      cancel $2
       ;;
   esac
 else
