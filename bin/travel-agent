@@ -64,8 +64,9 @@ boostrap(){
     cp $manifest_folder/manifest_suite_test.go .
     cp $manifest_folder/main.go .
 
-    sed -i '' -e "s/FOO/$NAME/g" manifest.ego 
     sed -i '' -e "s/FOO/$NAME/g" manifest_test.go
+    sed -i '' -e "s/FOO/$NAME/g" assets/dev.yml
+    sed -i '' -e "s/FOO/$NAME/g" assets/prod.yml
   popd > /dev/null
 }
 
@@ -147,7 +148,7 @@ if [[ $1 =~ ^(book|bootstrap|target|help)$ ]]; then
     target)
       target $2
       ;;
-    target)
+    bootstrap)
       boostrap $2
       ;;
     book)
