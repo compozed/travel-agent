@@ -35,9 +35,13 @@ var _ = Describe("Manifest generation", func() {
 			Ω(err).ShouldNot(HaveOccurred())
 
 			err = yaml.Unmarshal(buf.Bytes(), &actualManifest)
-			Expect(actualManifest).ShouldNot(BeNil())
+			if err != nil {
+				fmt.Println("Generated Manifest:")
+				fmt.Println(string(buf.Bytes()))
+			}
+			Ω(err).ShouldNot(HaveOccurred())
 
-			Ω(err).ShouldNot(HaveOccurred(), "There is a problem in your ego template")
+			Expect(actualManifest).ShouldNot(BeNil())
 		})
 
 		Describe("When rendering jobs", func() {
