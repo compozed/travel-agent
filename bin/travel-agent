@@ -64,7 +64,7 @@ boostrap(){
     cp $manifest_folder/manifest_suite_test.go .
     cp $manifest_folder/main.go .
 
-    sed -i '' -e "s/FOO/$NAME/g" manifest_test.go
+    sed -i '' -e "s/FOO/$NAME/g" assets/travel-agent.yml
     sed -i '' -e "s/FOO/$NAME/g" assets/dev.yml
     sed -i '' -e "s/FOO/$NAME/g" assets/prod.yml
   popd > /dev/null

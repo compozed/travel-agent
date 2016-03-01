@@ -12,12 +12,9 @@ import (
 )
 
 var _ = Describe("Manifest generation", func() {
-	envs := []Env{
-		Env{Name: "dev"},
-		Env{Name: "prod"},
-	}
+	config, _ := LoadFromFile("assets/travel-agent.yml")
 
-	for index, env := range envs {
+	for index, env := range config.Envs {
 		envLocal := env
 		indexLocal := index
 		var actualManifest map[interface{}]interface{}
@@ -27,10 +24,10 @@ var _ = Describe("Manifest generation", func() {
 			var buf bytes.Buffer
 
 			if indexLocal > 0 {
-				envLocal.DependsOn = envs[indexLocal-1].Name
+				envLocal.DependsOn = config.Envs[indexLocal-1].Name
 			}
 
-			config := Config{"FOO", []Env{envLocal}}
+			config := Config{config.Name, []Env{envLocal}}
 			err = ManifestTmpl(&buf, config)
 			Ω(err).ShouldNot(HaveOccurred())
 

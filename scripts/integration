@@ -3,6 +3,7 @@
 rm -rf dummy
 mkdir dummy 
 pushd dummy
-  ./../bin/travel-agent book ~/workspace/travel-agent/models/example.yml
+  ./../bin/travel-agent bootstrap dummy
+  ./../bin/travel-agent book 
 popd
 
