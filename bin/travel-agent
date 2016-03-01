@@ -75,9 +75,6 @@ book() {
   TRAVEL_AGENT_CONFIG=$1
   SPRUCE_FILE=$2
 
-
-
-
   pushd ci/manifest > /dev/null
     clean
 
@@ -106,6 +103,7 @@ book() {
       spruce merge --prune config $pre_merged_manifest $SPRUCE_FILE > $manifest
     fi
 
+  spruce merge $manifest
     # Deploys if TARGET is set
     if [ -z "$TARGET" ] || [ -z "$NAME" ]; then
       echo "${yellow}===> INFO: set target and provie TRAVEL_AGENT_CONFIG if you want to deploy${reset}"

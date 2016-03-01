@@ -55,6 +55,7 @@ var _ = Describe("Manifest generation", func() {
 
 					actualJob := GetJob(actualManifest, jobName)
 
+					Expect(actualJob).ShouldNot(BeNil(), fmt.Sprintf("Manifest did not generate job \"%s\"", jobName))
 					Expect(actualJob).Should(Equal(localExpectedJob))
 				})
 			}
