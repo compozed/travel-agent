@@ -12,18 +12,6 @@ conf_dir=~/.travel-agent
 trap clean EXIT
 
 init(){
-  # Check that ego is installed
-  if ! type "ego" > /dev/null; then
-    echo "${green}you must install ego${reset}"
-    exit 1
-  fi
-
-  # Check that ginkgo is installed
-  if ! type "ginkgo" > /dev/null; then
-    echo "you must install ginkgo"
-    exit 1
-  fi
-
   go get github.com/onsi/ginkgo/ginkgo
   go get github.com/benbjohnson/ego/cmd/ego
   go get github.com/compozed/travel-agent/models
@@ -71,9 +59,18 @@ boostrap(){
 }
 
 book() {
-  TARGET=$(cat $conf_dir/TARGET)
   TRAVEL_AGENT_CONFIG=$1
   SPRUCE_FILE=$2
+  TARGET=$(cat $conf_dir/TARGET)
+
+  if [ ! -f "$conf_dir/TARGET" ]
+    then
+      echo "${red}You must set a concourse target first${reset}"
+      echo ''
+      echo 'USAGE: ./travel-agent target CONCOURSE_TARGET'
+      exit 1
+  fi
+
 
   pushd ci/manifest > /dev/null
     clean
@@ -138,7 +135,7 @@ cat << EOM
 EOM
 }
 
-if [[ $1 =~ ^(book|bootstrap|target|help)$ ]]; then
+if [[ $1 =~ ^(book|init|bootstrap|target|help)$ ]]; then
   case $1 in
     help)
       help
@@ -151,6 +148,9 @@ if [[ $1 =~ ^(book|bootstrap|target|help)$ ]]; then
       ;;
     book)
       book $2 $3
+      ;;
+    init)
+      init 
       ;;
   esac
 else

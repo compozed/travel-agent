@@ -24,7 +24,7 @@ var _ = Describe("Manifest generation", func() {
 			var buf bytes.Buffer
 
 			if indexLocal > 0 {
-				envLocal.DependsOn = config.Envs[indexLocal-1].Name
+				envLocal.DependsOn = []string{config.Envs[indexLocal-1].Name}
 			}
 
 			config := Config{config.Name, []Env{envLocal}}

@@ -15,7 +15,7 @@ var _ = Describe("Models", func() {
 	BeforeEach(func() {
 		envs = nil
 		envs = append(envs, Env{Name: "dev"})
-		envs = append(envs, Env{Name: "prod", DependsOn: "dev"})
+		envs = append(envs, Env{Name: "prod", DependsOn: []string{"dev"}})
 
 		config.Envs = envs
 		config.Name = "FOO"
@@ -46,6 +46,18 @@ var _ = Describe("Models", func() {
 			Expect(err).ShouldNot(HaveOccurred())
 
 			Expect(expected).Should(Equal(config))
+		})
+	})
+
+	Describe("Env", func() {
+		Describe("GetDependsOn", func() {
+			It("should return all dependencies as a string", func() {
+				var env = Env{Name: "prod"}
+				env.DependsOn = append(env.DependsOn, "dev")
+				env.DependsOn = append(env.DependsOn, "test")
+
+				Expect(env.GetDependsOn()).Should(Equal("[dev,test]"))
+			})
 		})
 	})
 })
