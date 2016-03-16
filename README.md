@@ -9,9 +9,13 @@ It allows to work with dependencies between.
 
 Make sure that your go environment is correctly set up in your workstation.
 
-    go get github.com/benbjohnson/ego/cmd/ego 
-    go get -d github.com/compozed/travel-agent
-    ln -s $GOPATH/src/compozed/travel-agent/bin/travel-agent ~/bin/.
+  # Pull dependencies
+  go get github.com/onsi/ginkgo/ginkgo
+  go get github.com/benbjohnson/ego/cmd/ego
+  go get -d github.com/compozed/travel-agent
+
+  # Make travel agent cli available (this asumes ~/bin is set in your $PATH)
+  ln -s $GOPATH/src/compozed/travel-agent/bin/travel-agent ~/bin/.
 
 ## Usage
 
@@ -49,5 +53,3 @@ Generates travel agent structure, it also upgrades when newer versions of travel
 
 
 **spruce_secrets.yml** configs that get merge after manifest generation
-
-
