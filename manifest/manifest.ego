@@ -3,13 +3,19 @@
 ---
 jobs:
 <% for _, env := range config.Envs { %>
-- name: <%= fmt.Sprintf("%s-%s",  config.Name, env.Name) %>
+- name: <%= env.Name %>
   serial: true
   public: true
-  plan: []
+  plan: 
+  - get: dependency
+<% if env.HasDependencies() { %>
+    passed: <%= env.GetDependsOn() %>
 <% } %>
+
+<% } %>
+
 resources:
 <% for _, env := range config.Envs { %>
-- name: <%= fmt.Sprintf("%s-%s-deployment", env.Name, config.Name ) %>
+- name: <%= fmt.Sprintf("%s-deployment", env.Name) %>
   type: bosh-deployment
 <% } %>

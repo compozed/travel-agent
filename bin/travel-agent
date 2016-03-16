@@ -32,7 +32,6 @@ target(){
   echo $TARGET > $conf_dir/TARGET
 }
 
-
 boostrap(){
   NAME=$1
 
@@ -65,11 +64,12 @@ book() {
 
   if [ ! -f "$conf_dir/TARGET" ]
     then
-      echo "${red}You must set a concourse target first${reset}"
+      echo "${red}You must set target first${reset}"
       echo ''
       echo 'USAGE: ./travel-agent target CONCOURSE_TARGET'
       exit 1
   fi
+
   upgrade-travel-agent
 
   pushd ci/manifest > /dev/null
@@ -130,7 +130,7 @@ upgrade-travel-agent(){
 help() {
 cat << EOM
 
-  Travel with Concourse to multiple enviroments without repeating yourself.
+  Travel agent helps you write concourse pipelines without repeating yourself.
   TDD your pipeline templates and create jobs and resources for 1..N environments.
 
   Running travel agent:
@@ -146,7 +146,7 @@ cat << EOM
 EOM
 }
 
-if [[ $1 =~ ^(book|init|bootstrap|target|help)$ ]]; then
+if [[ $1 =~ ^(help|target|bootstrap|book)$ ]]; then
   case $1 in
     help)
       help
@@ -159,9 +159,6 @@ if [[ $1 =~ ^(book|init|bootstrap|target|help)$ ]]; then
       ;;
     book)
       book $2 $3
-      ;;
-    init)
-      init 
       ;;
   esac
 else

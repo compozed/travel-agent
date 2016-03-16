@@ -1,11 +1,14 @@
 ---
 jobs:
-- name: FOO-prod
+- name: prod
   serial: true
   public: true
-  plan: []
+  plan:
+  - get: dependency
+    passed:
+    - dev
 
 resources:
-- name: prod-FOO-deployment
+- name: prod-deployment
   type: bosh-deployment
 

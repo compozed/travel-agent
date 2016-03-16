@@ -1,11 +1,12 @@
 ---
 jobs:
-- name: FOO-dev
+- name: dev
   serial: true
   public: true
-  plan: []
+  plan:
+  - get: dependency
 
-resources: 
-- name: dev-FOO-deployment
+resources:
+- name: dev-deployment
   type: bosh-deployment
 
