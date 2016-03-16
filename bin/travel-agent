@@ -48,9 +48,9 @@ boostrap(){
   mkdir -p ci && cp -rn $manifest_folder ci/. 2>/dev/null || :
 
   pushd ci/manifest > /dev/null
-    cp $manifest_folder/manifest_test.go .
-    cp $manifest_folder/manifest_suite_test.go .
-    cp $manifest_folder/main.go .
+    # cp $manifest_folder/manifest_test.go .
+    # cp $manifest_folder/manifest_suite_test.go .
+    # cp $manifest_folder/main.go .
 
     sed -i '' -e "s/FOO/$NAME/g" assets/travel-agent.yml
     sed -i '' -e "s/FOO/$NAME/g" assets/dev.yml
@@ -70,7 +70,7 @@ book() {
       echo 'USAGE: ./travel-agent target CONCOURSE_TARGET'
       exit 1
   fi
-
+  upgrade-travel-agent
 
   pushd ci/manifest > /dev/null
     clean
@@ -114,6 +114,17 @@ book() {
 # Clean old atifacts
 clean(){
   rm -f manifest.go manifest 
+}
+
+upgrade-travel-agent(){
+  manifest_folder=$GOPATH/src/github.com/compozed/travel-agent/manifest
+  mkdir -p ci && cp -rn $manifest_folder ci/. 2>/dev/null || :
+
+  pushd ci/manifest > /dev/null
+    cp $manifest_folder/manifest_test.go .
+    cp $manifest_folder/manifest_suite_test.go .
+    cp $manifest_folder/main.go .
+  popd > /dev/null
 }
 
 help() {
