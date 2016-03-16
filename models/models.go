@@ -21,6 +21,14 @@ func (f *Env) GetDependsOn() string {
 	return fmt.Sprintf("[%s]", strings.Join(f.DependsOn, ","))
 }
 
+func (e *Env) HasDependencies() bool {
+	if e.DependsOn == nil || len(e.DependsOn) == 0 {
+		return false
+	} else {
+		return true
+	}
+}
+
 func Load(y []byte) (Config, error) {
 	var config Config
 	err := yaml.Unmarshal(y, &config)

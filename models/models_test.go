@@ -50,6 +50,22 @@ var _ = Describe("Models", func() {
 	})
 
 	Describe("Env", func() {
+		Describe("HasDependencies?", func() {
+
+			It("should be true when there are dependencies", func() {
+				var env = Env{Name: "prod"}
+				env.DependsOn = append(env.DependsOn, "dev")
+
+				Expect(env.HasDependencies()).Should(BeTrue())
+			})
+
+			It("should be false when there not any dependencies", func() {
+				var env = Env{Name: "dev"}
+
+				Expect(env.HasDependencies()).Should(BeFalse())
+			})
+		})
+
 		Describe("GetDependsOn", func() {
 			It("should return all dependencies as a string", func() {
 				var env = Env{Name: "prod"}
