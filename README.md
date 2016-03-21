@@ -9,13 +9,13 @@ It allows to work with dependencies between.
 
 Make sure that your go environment is correctly set up in your workstation.
 
-  # Pull dependencies
-  go get github.com/onsi/ginkgo/ginkgo
-  go get github.com/benbjohnson/ego/cmd/ego
-  go get -d github.com/compozed/travel-agent
+    # Pull dependencies
+    go get github.com/onsi/ginkgo/ginkgo
+    go get github.com/benbjohnson/ego/cmd/ego
+    go get -d github.com/compozed/travel-agent/manifest
 
-  # Make travel agent cli available (this asumes ~/bin is set in your $PATH)
-  ln -s $GOPATH/src/compozed/travel-agent/bin/travel-agent ~/bin/.
+    # Make travel agent cli available (this asumes ~/bin is set in your $PATH)
+    ln -s $GOPATH/src/compozed/travel-agent/bin/travel-agent ~/bin/.
 
 ## Usage
 
