@@ -28,8 +28,7 @@ target(){
       exit 1
   fi
 
-  mkdir -p $conf_dir
-  echo $TARGET > $conf_dir/TARGET
+  fly -t travel-agent login -c $TARGET
 }
 
 boostrap(){
@@ -47,10 +46,6 @@ boostrap(){
   mkdir -p ci && cp -rn $manifest_folder ci/. 2>/dev/null || :
 
   pushd ci/manifest > /dev/null
-    # cp $manifest_folder/manifest_test.go .
-    # cp $manifest_folder/manifest_suite_test.go .
-    # cp $manifest_folder/main.go .
-
     sed -i '' -e "s/FOO/$NAME/g" assets/travel-agent.yml
     sed -i '' -e "s/FOO/$NAME/g" assets/dev.yml
     sed -i '' -e "s/FOO/$NAME/g" assets/prod.yml
@@ -60,15 +55,6 @@ boostrap(){
 book() {
   TRAVEL_AGENT_CONFIG=$1
   SPRUCE_FILE=$2
-  TARGET=$(cat $conf_dir/TARGET)
-
-  if [ ! -f "$conf_dir/TARGET" ]
-    then
-      echo "${red}You must set target first${reset}"
-      echo ''
-      echo 'USAGE: ./travel-agent target CONCOURSE_TARGET'
-      exit 1
-  fi
 
   upgrade-travel-agent
 
@@ -102,10 +88,10 @@ book() {
 
   spruce merge $manifest
     # Deploys if TARGET is set
-    if [ -z "$TARGET" ] || [ -z "$NAME" ]; then
+    if [ -z "$NAME" ]; then
       echo "${yellow}===> INFO: set target and provie TRAVEL_AGENT_CONFIG if you want to deploy${reset}"
     else
-      fly -t $TARGET configure -c $manifest --paused=false $NAME
+      fly -t travel-agent set-pipeline -c $manifest -p $NAME
     fi
   popd > /dev/null
 
