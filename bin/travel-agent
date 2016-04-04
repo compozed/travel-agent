@@ -71,19 +71,23 @@ book() {
     if [ -z "$TRAVEL_AGENT_CONFIG" ] ; then
       echo "${yellow}===> INFO: provide TAVEL_AGENT_CONFIG if you want to generate a manifest${reset}"
     else
+      echo "${green}===> Generating manifest for enviroments provided by the travel-agent.yml config file ...${reset}"
       NAME=$(grep -E "^name:" $TRAVEL_AGENT_CONFIG | awk -F " " '{print $2}')
       pre_merged_manifest=.tmp/pre_merged_manifest.yml
       mkdir -p .tmp 
       go run manifest.go main.go $TRAVEL_AGENT_CONFIG > $pre_merged_manifest
+      echo "${green}===> done${reset}"
     fi
 
     # Merges file with spruce if SPRUCE_FILE was provided
     if [ -z "$SPRUCE_FILE" ] ; then
       manifest=$pre_merged_manifest
-      echo "${yellow}===> INFO: provide SPRUCE_FILE if you want to generate a manifest${reset}"
+      echo "${yellow}===> INFO: provide SPRUCE_FILE if you want to spruce merge secrets to manifest${reset}"
     else
+      echo "${green}===> Merging secrets from spruce-secret.yml into the generated manifest ...${reset}"
       manifest=.tmp/concourse_deployment_manifest.yml
       spruce merge --prune config $pre_merged_manifest $SPRUCE_FILE > $manifest
+      echo "${green}===> done${reset}"
     fi
 
   spruce merge $manifest
