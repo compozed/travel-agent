@@ -1,9 +1,13 @@
 Travel Agent
 ============
 
-Works together with concourse to manage concourse manifest templates for multiple environment.
+Works together with concourse.ci to manage pipeline manifests.
 
-It allows to work with dependencies between.
+## Goals:
+
+**DRY pipeline manifests:** When pipelines needs to perform the exact task or deployment on multiple enviroments pipeline's manifests start gettting bigger.
+This is address by travel-agent by turning the pipeline manifest into a `ego`
+
 
 ## Installing
 
@@ -11,37 +15,41 @@ Make sure that your go environment is correctly set up in your workstation.
 
     # Pull dependencies
     go get github.com/onsi/ginkgo/ginkgo
+    go get github.com/onsi/gomega
     go get github.com/benbjohnson/ego/cmd/ego
     go get -d github.com/compozed/travel-agent/manifest
 
     # Make travel agent cli available (this asumes ~/bin is set in your $PATH)
-    ln -s $GOPATH/src/compozed/travel-agent/bin/travel-agent ~/bin/.
+    ln -s $GOPATH/src/github.com/compozed/travel-agent/bin/travel-agent ~/bin/.
+
 
 ## Usage
 
 ### Target
 
-Its sets your concourse target
+Travel-Agent sets your concourse target
 
     ./travel-agent target CONCOURSE_IP:PORT
 
-### bootstrap(TBD)
+### bootstrap
 
-Generates travel agent structure, it also upgrades when newer versions of travel-agent get released
+Generates travel agent structure in `ci/manifest`
 
-    ./travel-agent target CONCOURSE_IP:PORT
+    ./travel-agent bootstrap PIPELINE_NAME 
 
 ### Book
 
-* Tests your **ci/manifest/manifest.ego**(Template that generates manifest) against **ci/manifest/assets/dev|prod**
-* It generates manifest if tests passed
-* If spruce_secrets.yml is provided it tries to spruce merge with generated manifest
-* If generated manifest exists it tries to deploy to concourse
+    ./travel-agent book [TRAVEL_AGENT_CONFIG] [SPRUCE_SECRET_YAML]
 
+1. Upgrades travel agent project when a newer versions is available in your system
+2. Tests your **ci/manifest/manifest.ego** against **ci/manifest/assets/***
+3. If tests passed and `TRAVEL_AGENT_CONFIG` was provided it will try to generate your manifest
+4. If `SPRUCE_SECRET_YAML` is provided, it tries to spruce merge with the generated manifest
+5. If generated manifest exists, it tries to deploy to concourse
 
-    ./trave-agent book travel-agent-config.yml spruce_secrets.yml
+#### TRAVEL_AGENT_CONFIG
 
-**travel-agent-config.yml** descrives environments that your pipeline supports:
+example:
 
     name: cf
     envs:
@@ -52,4 +60,6 @@ Generates travel agent structure, it also upgrades when newer versions of travel
       depends_on: test
 
 
-**spruce_secrets.yml** configs that get merge after manifest generation
+### Writing concourse manifest templates
+
+Travel agent relays on `ego` to generate pipeline manifests. After a bootstrap you will have a `ci/manifest/manifest.ego` that you can use as an starting point.
