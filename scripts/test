@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-rm -rf dummy
-ego -package main -o manifest.go 
-mv manifest.go manifest/.
-ginkgo -r -skipPackage dummy

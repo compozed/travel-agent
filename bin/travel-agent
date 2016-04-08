@@ -2,6 +2,8 @@
 
 set -e
 
+source $GOPATH/src/github.com/compozed/travel-agent/bin/common.sh
+
 red=`tput setaf 1`
 green=`tput setaf 2`
 yellow=`tput setaf 3`
@@ -13,128 +15,44 @@ trap clean EXIT
 
 init(){
   go get github.com/onsi/ginkgo/ginkgo
-  go get github.com/benbjohnson/ego/cmd/ego
   go get github.com/compozed/travel-agent/models
-}
-
-target(){
-  TARGET=$1
-
-  if [  -z "$TARGET" ]
-    then
-      echo "${red}You must provide a concourse target${reset}"
-      echo ''
-      echo 'USAGE: ./travel-agent target CONCOURSE_TARGET'
-      exit 1
-  fi
-
-  fly -t travel-agent login -c $TARGET
 }
 
 boostrap(){
   NAME=$1
 
   if [  -z "$NAME" ]
-    then
-      echo "${red}You must provide a concourse target${reset}"
-      echo ''
-      echo 'USAGE: ./travel-agent boostrap NAME'
-      exit 1
+  then
+    echo "${red}You must provide a concourse target${reset}"
+    echo ''
+    echo 'USAGE: ./travel-agent boostrap NAME'
+    exit 1
   fi
 
   manifest_folder=$GOPATH/src/github.com/compozed/travel-agent/manifest
   mkdir -p ci && cp -rn $manifest_folder ci/. 2>/dev/null || :
 
   pushd ci/manifest > /dev/null
-    sed -i '' -e "s/FOO/$NAME/g" assets/travel-agent.yml
-    sed -i '' -e "s/FOO/$NAME/g" assets/dev.yml
-    sed -i '' -e "s/FOO/$NAME/g" assets/prod.yml
+  sed -i '' -e "s/FOO/$NAME/g" assets/travel-agent.yml
+  sed -i '' -e "s/FOO/$NAME/g" assets/dev.yml
+  sed -i '' -e "s/FOO/$NAME/g" assets/prod.yml
   popd > /dev/null
 }
 
-book() {
-  TRAVEL_AGENT_CONFIG=$1
-  SPRUCE_FILE=$2
 
-  upgrade-travel-agent
-
-  pushd ci/manifest > /dev/null
-    clean
-
-    # Compile .ego into manifest.go
-    ego -package main -o manifest.go
-
-    # Run test suite to match template with assets/*
-    ginkgo -r -failFast
-
-    # Creates a manifest if a TRAVEL_AGENT_CONFIG was provided
-    if [ -z "$TRAVEL_AGENT_CONFIG" ] ; then
-      echo "${yellow}===> INFO: provide TAVEL_AGENT_CONFIG if you want to generate a manifest${reset}"
-    else
-      echo "${green}===> Generating manifest for enviroments provided by the travel-agent.yml config file ...${reset}"
-      NAME=$(grep -E "^name:" $TRAVEL_AGENT_CONFIG | awk -F " " '{print $2}')
-      pre_merged_manifest=.tmp/pre_merged_manifest.yml
-      mkdir -p .tmp 
-      go run manifest.go main.go $TRAVEL_AGENT_CONFIG > $pre_merged_manifest
-      echo "${green}===> done${reset}"
-    fi
-
-    # Merges file with spruce if SPRUCE_FILE was provided
-    if [ -z "$SPRUCE_FILE" ] ; then
-      manifest=$pre_merged_manifest
-      echo "${yellow}===> INFO: provide SPRUCE_FILE if you want to spruce merge secrets to manifest${reset}"
-    else
-      echo "${green}===> Merging secrets from spruce-secret.yml into the generated manifest ...${reset}"
-      manifest=.tmp/concourse_deployment_manifest.yml
-      spruce merge --prune config $pre_merged_manifest $SPRUCE_FILE > $manifest
-      echo "${green}===> done${reset}"
-    fi
-
-  spruce merge $manifest
-    # Deploys if TARGET is set
-    if [ -z "$NAME" ]; then
-      echo "${yellow}===> INFO: set target and provie TRAVEL_AGENT_CONFIG if you want to deploy${reset}"
-    else
-      fly -t travel-agent set-pipeline -c $manifest -p $NAME
-    fi
-  popd > /dev/null
-
-}
-
-# Clean old atifacts
-clean(){
-  rm -f manifest.go manifest 
-}
 
 upgrade-travel-agent(){
-  manifest_folder=$GOPATH/src/github.com/compozed/travel-agent/manifest
-  mkdir -p ci && cp -rn $manifest_folder ci/. 2>/dev/null || :
+manifest_folder=$GOPATH/src/github.com/compozed/travel-agent/manifest
+mkdir -p ci && cp -rn $manifest_folder ci/. 2>/dev/null || :
 
-  pushd ci/manifest > /dev/null
-    cp $manifest_folder/manifest_test.go .
-    cp $manifest_folder/manifest_suite_test.go .
-    cp $manifest_folder/main.go .
-  popd > /dev/null
+pushd ci/manifest > /dev/null
+cp $manifest_folder/manifest_test.go .
+cp $manifest_folder/manifest_suite_test.go .
+cp $manifest_folder/main.go .
+popd > /dev/null
+
 }
 
-help() {
-cat << EOM
-
-  Travel agent helps you write concourse pipelines without repeating yourself.
-  TDD your pipeline templates and create jobs and resources for 1..N environments.
-
-  Running travel agent:
-
-    travel-agent SUBCOMMAND
-
-  Subcommands:
-
-    help
-    bootstrap   - Generates and upgrades travel agent project
-    target      - Sets concourse target. EG: https://1.2.3.4:9090
-    book  - test and deploy your pipeline template (manifest.ego) against 2 dummy assets(dev and prod)
-EOM
-}
 
 if [[ $1 =~ ^(help|target|bootstrap|book)$ ]]; then
   case $1 in

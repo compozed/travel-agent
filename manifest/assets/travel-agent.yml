@@ -1,4 +1,6 @@
 name: FOO
+git_project: https://github.com/compozed/travel-agent-example.git
+# git_project: /full/path/to/your/travel-agent-project
 envs:
 - name: dev
 - name: prod
