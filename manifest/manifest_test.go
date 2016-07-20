@@ -1,9 +1,9 @@
-package main_test
+package manifest_test
 
 import (
-	. "../manifest"
 	"bytes"
 	"fmt"
+	. "github.com/compozed/travel-agent/manifest"
 	. "github.com/compozed/travel-agent/models"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
