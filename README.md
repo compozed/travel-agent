@@ -19,7 +19,7 @@ Make sure that your go environment is correctly set up on your workstation.
     go get -d github.com/compozed/travel-agent/manifest
 
     # Make travel agent cmd available (this asumes ~/bin is set in your $PATH)
-    ln -s $GOPATH/src/github.com/compozed/travel-agent/bin/travel-agent ~/bin/.
+    ln -s $GOPATH/src/github.com/compozed/travel-agent/bin/travel-agent $GOPATH/bin/.
 
 
 ## Usage
