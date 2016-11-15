@@ -60,3 +60,12 @@ example:
       - dev
         name: cf
 
+
+## Contributing
+
+See our [CONTRUBUTING](CONTRIBUTING.md) section for more information.
+
+
+## License
+
+The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
