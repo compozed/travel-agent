@@ -1,11 +1,11 @@
 #Contributing to TravelAgent
 
-OpsManagerCLI is an open source project and we welcome all contributions! 
+TravelAgent is an open source project and we welcome all contributions! 
 
 We use GitHub to manage reviews of pull requests.
 
 ## Making changes
-- Fork the OpsManagerCLI repository. For developing new features and bug fixes, the `master` branch should be pulled and built upon.
+- Fork the TravelAgent repository. For developing new features and bug fixes, the `master` branch should be pulled and built upon.
 - Create a topic branch where you want to base your work `git checkout -b fix/master/my_contribution master`.
 - Make commits of logical units in the correct format.
 - Do **not** make commits through the GitHub web interface due to issues with the automated CLA management.
