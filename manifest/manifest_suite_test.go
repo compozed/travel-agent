@@ -1,4 +1,4 @@
-package manifest_test
+package main_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -8,11 +8,18 @@ import (
 )
 
 var manifestPath string
+var _ = BeforeSuite(func() {
+	var err error
+
+	manifestPath, err = gexec.Build("../manifest")
+	Ω(err).ShouldNot(HaveOccurred())
+})
+
 var _ = AfterSuite(func() {
 	gexec.CleanupBuildArtifacts()
 })
 
 func TestCi(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Manifest Suite")
+	RunSpecs(t, "Ci Suite")
 }

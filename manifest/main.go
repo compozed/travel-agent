@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	. "github.com/compozed/travel-agent/manifest"
 	. "github.com/compozed/travel-agent/models"
 	"os"
 )
