@@ -14,7 +14,6 @@ conf_dir=~/.travel-agent
 trap clean EXIT
 
 init(){
-  go get github.com/onsi/ginkgo/ginkgo
   go get github.com/compozed/travel-agent/models
 }
 

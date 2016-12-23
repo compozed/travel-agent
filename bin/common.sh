@@ -1,3 +1,6 @@
+manifest=.tmp/concourse_deployment_manifest.yml
+pre_merged_manifest=.tmp/pre_merged_manifest.yml
+
 target(){
   TARGET=$1
 
@@ -51,79 +54,54 @@ Subcommands:
 help
 bootstrap   - Generates and upgrades travel agent project
 target      - Sets concourse target. EG: https://1.2.3.4:9090
-book  - test and deploy your pipeline template (manifest.ego) against 2 dummy assets(dev and prod)
+book  - compiles and dpeloys manifest.ego (manifest.ego) 
 EOM
 }
 
 book() {
   echo 'Booking...'
   TRAVEL_AGENT_CONFIG=$1
-  SPRUCE_FILE=$2
+  FILES_TO_MERGE=$*
+
+  if [ -z "$TRAVEL_AGENT_CONFIG" ] ; then
+    echo "${red}===> provide TAVEL_AGENT_CONFIG if you want to generate a manifest${reset}"
+    exit 1
+  fi
+
+  if [ -z "$FILES_TO_MERGE" ] ; then
+    echo "${red}===> provide FILES_TO_MERGE if you want to spruce merge secrets to manifest${reset}"
+    exit 1
+  fi
 
   if [ -n "$TRAVEL_AGENT_CONFIG" ] ; then
     TRAVEL_AGENT_PROJECT=$(cat "$1" | grep -v -e "^#" | grep -e "^git_project:" |  awk -F"git_project:" '{print $2}' )
     clone_project "$TRAVEL_AGENT_PROJECT"
   fi
 
-  if [ -d "ci/manifest" ]; then
-    echo "Travel agent project found"
-  else
+  if ! [ -d "ci/manifest" ]; then
     echo "This does not look like a travel agent project"
+    exit 1
   fi
 
   pushd ci/manifest > /dev/null
 
   clean
 
-  # Compile .ego into manifest.go
   ego -package main -o manifest.go
 
-  # Run test suite to match template with assets/*
-  ginkgo -r -failFast
+  printf "${green}===> Generating manifest for enviroments provided by the travel-agent.yml config file ...${reset}"
+  NAME=$(grep -E "^name:" $TRAVEL_AGENT_CONFIG | awk -F " " '{print $2}')
+  mkdir -p .tmp
+  go run manifest.go main.go $TRAVEL_AGENT_CONFIG > $pre_merged_manifest
+  echo "${green}done${reset}"
 
-  # Creates a manifest if a TRAVEL_AGENT_CONFIG was provided
-  if [ -z "$TRAVEL_AGENT_CONFIG" ] ; then
-    echo "${yellow}===> INFO: provide TAVEL_AGENT_CONFIG if you want to generate a manifest${reset}"
-  else
+  printf "${green}===> Merging secrets from spruce-secret.yml into the generated manifest ...${reset}"
+  spruce merge --prune meta $pre_merged_manifest $FILES_TO_MERGE > $manifest
+  echo "${green}done${reset}"
 
-    echo "${green}===> Generating manifest for enviroments provided by the travel-agent.yml config file ...${reset}"
-    NAME=$(grep -E "^name:" $TRAVEL_AGENT_CONFIG | awk -F " " '{print $2}')
-    pre_merged_manifest=.tmp/pre_merged_manifest.yml
-    mkdir -p .tmp
-    go run manifest.go main.go $TRAVEL_AGENT_CONFIG > $pre_merged_manifest
-    echo "${green}===> done${reset}"
+  spruce merge $manifest > /dev/null
 
-    if [ -n "$DEBUG" ] ; then
-      echo "PREMERGED MANIFEST"
-      cat $pre_merged_manifest
-    fi
-  fi
+  fly -t travel-agent set-pipeline -c $manifest -p $NAME
 
-
-  # Merges file with spruce if SPRUCE_FILE was provided
-  if [ -z "$SPRUCE_FILE" ] ; then
-    manifest=$pre_merged_manifest
-    echo "${yellow}===> INFO: provide SPRUCE_FILE if you want to spruce merge secrets to manifest${reset}"
-  else
-    echo "${green}===> Merging secrets from spruce-secret.yml into the generated manifest ...${reset}"
-    manifest=.tmp/concourse_deployment_manifest.yml
-    spruce merge --prune config $pre_merged_manifest $SPRUCE_FILE > $manifest
-    echo "${green}===> done${reset}"
-  fi
-
-  # Outputs spruce merging errors, hides output
-  if [ -n "$DEBUG" ] ; then
-    spruce merge $manifest > /dev/null
-  else
-    spruce merge $manifest 
-  fi
-
-  # Deploys if TARGET is set
-  if [ -z "$NAME" ] || [ ! -z "$DRY_RUN" ]; then
-    echo "${yellow}===> INFO: set target and provie TRAVEL_AGENT_CONFIG if you want to deploy${reset}"
-  else
-    fly -t travel-agent set-pipeline -c $manifest -p $NAME
-  fi
   popd > /dev/null
-
 }
