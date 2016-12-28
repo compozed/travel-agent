@@ -14,28 +14,18 @@ conf_dir=~/.travel-agent
 trap clean EXIT
 
 init(){
-  go get github.com/compozed/travel-agent/models
-}
-
-boostrap(){
   NAME=$1
 
   if [  -z "$NAME" ]
   then
     echo "${red}You must provide a concourse target${reset}"
     echo ''
-    echo 'USAGE: ./travel-agent boostrap NAME'
+    echo 'USAGE: ./travel-agent init NAME'
     exit 1
   fi
 
   manifest_folder=$GOPATH/src/github.com/compozed/travel-agent/manifest
   mkdir -p ci && cp -rn $manifest_folder ci/. 2>/dev/null || :
-
-  pushd ci/manifest > /dev/null
-  sed -i '' -e "s/FOO/$NAME/g" assets/travel-agent.yml
-  sed -i '' -e "s/FOO/$NAME/g" assets/dev.yml
-  sed -i '' -e "s/FOO/$NAME/g" assets/prod.yml
-  popd > /dev/null
 }
 
 
@@ -53,7 +43,7 @@ popd > /dev/null
 }
 
 
-if [[ $1 =~ ^(help|target|bootstrap|book)$ ]]; then
+if [[ $1 =~ ^(help|target|init|book)$ ]]; then
   case $1 in
     help)
       help
@@ -61,8 +51,8 @@ if [[ $1 =~ ^(help|target|bootstrap|book)$ ]]; then
     target)
       target $2
       ;;
-    bootstrap)
-      boostrap $2
+    init)
+      init $2
       ;;
     book)
       book $2 $3
