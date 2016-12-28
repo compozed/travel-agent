@@ -1,7 +1,7 @@
 Travel Agent
 ============
 
-Works together with concourse.ci to manage pipeline manifests.
+Works together with **concourse.ci** to manage pipeline manifests.
 
 ## Goals:
 
@@ -13,8 +13,6 @@ Travel-agent addresses this issue by turning the pipeline manifest into a dynami
 Make sure that your go environment is correctly set up on your workstation.
 
     # Pull dependencies
-    go get github.com/onsi/ginkgo/ginkgo
-    go get github.com/onsi/gomega
     go get github.com/benbjohnson/ego/cmd/ego
     go get -d github.com/compozed/travel-agent/manifest
 
@@ -34,17 +32,16 @@ Travel-Agent sets your concourse target
 
 Generates travel agent structure in `ci/manifest`
 
-    ./travel-agent bootstrap PIPELINE_NAME 
+    cd YOUR_PROJECT
+    ./travel-agent init
 
 ### Book
 
-    ./travel-agent book [TRAVEL_AGENT_CONFIG] [SPRUCE_SECRET_YAML]
+    ./travel-agent book [TRAVEL_AGENT_CONFIG_PATH] [SPRUCE_SETTINGS_PATH]
 
-1. Upgrades travel agent project when a newer versions is available locally 
-2. Tests your **ci/manifest/manifest.ego** against **ci/manifest/assets/***
-3. If all tests pass and `TRAVEL_AGENT_CONFIG` was provided, it will try to generate your manifest
-4. If `SPRUCE_SECRET_YAML` is provided, it tries to spruce merge with the newly generated manifest
-5. If a generated manifest exists, it tries to deploy to concourse
+1. It will try to generate your manifest base on your `TRAVEL_AGENT_CONFIG`
+1. If `SPRUCE_SETTINGS_PATH` is provided, it tries to spruce merge with the newly generated manifest
+1. It tries to deploy to concourse
 
 #### TRAVEL_AGENT_CONFIG
 
@@ -58,7 +55,6 @@ example:
     - name: prod
       depends_on:
       - dev
-        name: cf
 
 
 ## Contributing
