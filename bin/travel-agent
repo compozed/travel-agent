@@ -43,6 +43,26 @@ popd > /dev/null
 }
 
 
+fly_opts=""
+
+while getopts ":v:" opt; do
+  case "$opt" in
+    v)
+      fly_opts="$fly_opts -v \"$OPTARG\""
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+shift $((OPTIND-1))
+
 if [[ $1 =~ ^(help|target|init|book)$ ]]; then
   case $1 in
     help)

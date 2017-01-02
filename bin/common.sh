@@ -52,16 +52,15 @@ travel-agent SUBCOMMAND
 Subcommands:
 
 help
-bootstrap   - Generates and upgrades travel agent project
+intit       - Generates and upgrades travel agent project
 target      - Sets concourse target. EG: https://1.2.3.4:9090
-book  - compiles and dpeloys manifest.ego (manifest.ego) 
+book        - compiles and deploys manifest.ego (manifest.ego) 
 EOM
 }
 
 book() {
-  echo 'Booking...'
   TRAVEL_AGENT_CONFIG=$1
-  FILES_TO_MERGE=$*
+  FILES_TO_MERGE=$2
 
   if [ -z "$TRAVEL_AGENT_CONFIG" ] ; then
     echo "${red}===> provide TAVEL_AGENT_CONFIG if you want to generate a manifest${reset}"
@@ -95,13 +94,11 @@ book() {
   go run manifest.go main.go $TRAVEL_AGENT_CONFIG > $pre_merged_manifest
   echo "${green}done${reset}"
 
-  printf "${green}===> Merging secrets from spruce-secret.yml into the generated manifest ...${reset}"
-  spruce merge --prune meta $pre_merged_manifest $FILES_TO_MERGE > $manifest
+  printf "${green}===> Merging secrets from settings.yml into the generated manifest ...${reset}"
+  spruce --concourse merge --prune meta $pre_merged_manifest $FILES_TO_MERGE > $manifest
   echo "${green}done${reset}"
 
-  spruce merge $manifest > /dev/null
-
-  fly -t travel-agent set-pipeline -c $manifest -p $NAME
+  fly -t travel-agent set-pipeline -c $manifest -p $NAME $fly_opts
 
   popd > /dev/null
 }
