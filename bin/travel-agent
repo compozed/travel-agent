@@ -11,8 +11,6 @@ reset=`tput sgr0`
 
 conf_dir=~/.travel-agent
 
-trap clean EXIT
-
 init(){
   NAME=$1
 

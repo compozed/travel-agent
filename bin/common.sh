@@ -8,11 +8,11 @@ target(){
   then
     echo "${red}You must provide a concourse target${reset}"
     echo ''
-    echo 'USAGE: ./travel-agent target CONCOURSE_TARGET'
+    echo 'USAGE: ./travel-agent target CONCOURSE_TARGET. eg: http://ATC_IP:8080'
     exit 1
   fi
 
-  fly -t travel-agent login -c $TARGET
+  fly -t concourse login -k -c $TARGET
 }
 
 # Clean old atifacts
@@ -98,7 +98,7 @@ book() {
   spruce --concourse merge --prune meta $pre_merged_manifest $FILES_TO_MERGE > $manifest
   echo "${green}done${reset}"
 
-  fly -t travel-agent set-pipeline -c $manifest -p $NAME $fly_opts
+  fly -t concourse set-pipeline -c $manifest -p $NAME $fly_opts
 
   popd > /dev/null
 }
