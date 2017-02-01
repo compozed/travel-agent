@@ -95,7 +95,12 @@ book() {
   echo "${green}done${reset}"
 
   printf "${green}===> Merging secrets from settings.yml into the generated manifest ...${reset}"
+
+  export VAULT_ADDR="$(safe targets 2>&1 |grep "(*)" | cut -d$'\t' -f2)"
+  export VAULT_TOKEN="$(safe vault token-renew --format=json | jq -r '.auth.client_token')"
   spruce --concourse merge --prune meta $pre_merged_manifest $FILES_TO_MERGE > $manifest
+
+
   echo "${green}done${reset}"
 
   fly -t concourse set-pipeline -c $manifest -p $NAME $fly_opts
