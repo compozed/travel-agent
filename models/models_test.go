@@ -11,14 +11,19 @@ import (
 var _ = Describe("Models", func() {
 	var config Config
 	var envs []Env
+	var groups []Group
 
 	BeforeEach(func() {
 		envs = nil
 		envs = append(envs, Env{Name: "dev"})
 		envs = append(envs, Env{Name: "prod", DependsOn: []string{"dev"}})
 
+		groups = nil
+		groups = append(groups, Group{Name: "platform"})
+
 		config.Envs = envs
 		config.Name = "FOO"
+		config.Groups = groups
 	})
 
 	Describe("Load", func() {
@@ -73,6 +78,32 @@ var _ = Describe("Models", func() {
 				env.DependsOn = append(env.DependsOn, "test")
 
 				Expect(env.GetDependsOn()).Should(Equal("[dev,test]"))
+			})
+		})
+
+		Describe("GetDependsOnArray", func() {
+			It("should return the array of dependencies", func() {
+				var env = Env{Name: "prod"}
+				env.DependsOn = append(env.DependsOn, "dev")
+				env.DependsOn = append(env.DependsOn, "test")
+
+				dependencies := []string{"dev", "test"}
+
+				Expect(env.GetDependsOnArray()).Should(Equal(dependencies))
+			})
+		})
+	})
+
+	Describe("Group", func() {
+		Describe("Get a groups", func() {
+			It("should return a group name", func() {
+				var err error
+				var expected Config
+
+				expected, err = LoadFromFile("example.yml")
+				Expect(err).ShouldNot(HaveOccurred())
+
+				Expect(expected.Groups[0].Name).Should(Equal("platform"))
 			})
 		})
 	})

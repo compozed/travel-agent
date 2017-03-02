@@ -2,14 +2,16 @@ package models
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	. "io/ioutil"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
-	Name string `yaml:"name"` // Supporting both JSON and YAML.
-	Envs []Env  `yaml:"envs"` // Supporting both JSON and YAML.
+	Name   string  `yaml:"name"`   // Supporting both JSON and YAML.
+	Envs   []Env   `yaml:"envs"`   // Supporting both JSON and YAML.
+	Groups []Group `yaml:"groups"` // Supporting both JSON and YAML.
 }
 
 type Env struct {
@@ -17,8 +19,16 @@ type Env struct {
 	DependsOn []string `yaml:"depends_on"` // Supporting both JSON and YAML.
 }
 
+type Group struct {
+	Name string `yaml:"name"` // Supporting both JSON and YAML.
+}
+
 func (f *Env) GetDependsOn() string {
 	return fmt.Sprintf("[%s]", strings.Join(f.DependsOn, ","))
+}
+
+func (f *Env) GetDependsOnArray() []string {
+	return f.DependsOn
 }
 
 func (e *Env) HasDependencies() bool {
@@ -45,7 +55,6 @@ func Load(y []byte) (Config, error) {
 func LoadFromFile(path string) (Config, error) {
 	y, err := ReadFile(path)
 	if err != nil {
-
 		panic(err)
 	}
 

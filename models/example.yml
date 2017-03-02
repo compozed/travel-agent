@@ -5,3 +5,5 @@ envs:
 - name: prod
   depends_on:
   - dev
+groups:
+- name: platform
