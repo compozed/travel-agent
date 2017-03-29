@@ -3,8 +3,9 @@ package main
 import (
 	"bytes"
 	"fmt"
-	. "github.com/compozed/travel-agent/models"
 	"os"
+
+	. "github.com/compozed/travel-agent/models"
 )
 
 func main() {
