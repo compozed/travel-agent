@@ -60,7 +60,8 @@ EOM
 
 book() {
   TRAVEL_AGENT_CONFIG=$1
-  FILES_TO_MERGE=$2
+  shift
+  FILES_TO_MERGE=$@
 
   if [ -z "$TRAVEL_AGENT_CONFIG" ] ; then
     echo "${red}===> provide TAVEL_AGENT_CONFIG if you want to generate a manifest${reset}"
@@ -73,7 +74,7 @@ book() {
   fi
 
   if [ -n "$TRAVEL_AGENT_CONFIG" ] ; then
-    TRAVEL_AGENT_PROJECT=$(cat "$1" | grep -v -e "^#" | grep -e "^git_project:" |  awk -F"git_project:" '{print $2}' )
+    TRAVEL_AGENT_PROJECT=$(cat "$TRAVEL_AGENT_CONFIG" | grep -v -e "^#" | grep -e "^git_project:" |  awk -F"git_project:" '{print $2}' )
     clone_project "$TRAVEL_AGENT_PROJECT"
   fi
 
