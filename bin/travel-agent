@@ -73,7 +73,8 @@ if [[ $1 =~ ^(help|target|init|book)$ ]]; then
       init $2
       ;;
     book)
-      book $2 $3
+      shift
+      book $@
       ;;
   esac
 else
