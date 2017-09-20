@@ -97,7 +97,7 @@ book() {
 
   printf "${green}===> Merging secrets from settings.yml into the generated manifest ...${reset}"
 
-  export VAULT_ADDR="$(safe target 2>&1 | awk '{print $NF}')"
+  export VAULT_ADDR="$(safe target 2>&1 | sed 's/.* http\([^ ]*\) .*/http\1/')"
   export VAULT_TOKEN="$(safe vault token-renew --format=json | jq -r '.auth.client_token')"
   spruce --concourse merge --prune meta $pre_merged_manifest $FILES_TO_MERGE > $manifest
 
