@@ -1,6 +1,8 @@
-hash: 83923125c8b999c3cd55b4f814221565e56c1d5dbd6d2c17db626f924fb0718c
-updated: 2017-09-07T11:30:51.973312518-05:00
+hash: fa5f715cdf7b7be75dd07e44d89aa0db566cf6b32a0614f040afe55fae300b28
+updated: 2017-10-24T15:33:57.066396787+01:00
 imports:
+- name: github.com/benbjohnson/ego
+  version: 590dff9742dbd2e134877a5ec2cc915ce5c8aac7
 - name: github.com/onsi/ginkgo
   version: 5437a97bf824dec14e58d68c56ee36e772670c2e
   subpackages:

@@ -12,13 +12,8 @@ Travel-agent addresses this issue by turning the pipeline manifest into a dynami
 
 Make sure that your go environment is correctly set up on your workstation.
 
-    # Pull dependencies
-    go get github.com/benbjohnson/ego/cmd/ego
     go get -d github.com/compozed/travel-agent/manifest
-
-    # Make travel agent cmd available (this asumes ~/bin is set in your $PATH)
     ln -s $GOPATH/src/github.com/compozed/travel-agent/bin/travel-agent $GOPATH/bin/.
-
 
 ## Usage
 

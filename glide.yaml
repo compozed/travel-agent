@@ -33,3 +33,5 @@ import:
   - types
 - package: gopkg.in/yaml.v2
   version: e4d366fc3c7938e2958e662b4258c7a89e1f0e3e
+- package: github.com/benbjohnson/ego
+  version: 590dff9742dbd2e134877a5ec2cc915ce5c8aac7

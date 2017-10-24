@@ -1,5 +1,6 @@
 manifest=.tmp/concourse_deployment_manifest.yml
 pre_merged_manifest=.tmp/pre_merged_manifest.yml
+vendored_ego=$GOPATH/src/github.com/compozed/travel-agent/vendor/github.com/benbjohnson/ego/cmd/ego/main.go
 
 target(){
   TARGET=$1
@@ -87,7 +88,7 @@ book() {
 
   clean
 
-  ego -package main -o manifest.go
+  go run $vendored_ego -package main -o manifest.go
 
   printf "${green}===> Generating manifest for enviroments provided by the travel-agent.yml config file ...${reset}"
   NAME=$(grep -E "^name:" $TRAVEL_AGENT_CONFIG | awk -F " " '{print $2}')
