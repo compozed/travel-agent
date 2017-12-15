@@ -6,11 +6,15 @@ jobs:
 - name: <%= env.Name %>
   serial: true
   public: true
-  plan: 
+  plan:
   - get: dependency
 <% if env.HasDependencies() { %>
     passed: <%= env.GetDependsOn() %>
 <% } %>
+<% if env.HasFeature("check_for_existence") { %>
+  - get: conditionallyRetrieveThis
+<% } %>
+  - get: '<%= env.Feature("grab_value") %>'
 
 <% } %>
 
