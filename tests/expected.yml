@@ -1,0 +1,35 @@
+
+
+---
+jobs:
+
+- name: dev
+  serial: true
+  public: true
+  plan:
+  - get: dependency
+
+
+  - get: ''
+
+
+- name: prod
+  serial: true
+  public: true
+  plan:
+  - get: dependency
+
+
+  - get: conditionallyRetrieveThis
+
+  - get: 'alwaysRetrieveThis'
+
+
+
+resources:
+
+- name: dev-deployment
+  type: bosh-deployment
+
+- name: prod-deployment
+  type: bosh-deployment

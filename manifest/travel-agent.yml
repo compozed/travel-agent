@@ -1,0 +1,8 @@
+---
+name: test-features
+envs:
+- name: dev
+- name: prod
+  features:
+    check_for_existence: true
+    grab_value: alwaysRetrieveThis

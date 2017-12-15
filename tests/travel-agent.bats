@@ -59,3 +59,13 @@ teardown(){
   assert_success
   assert_dir_not_exists $travel_example_dir/.git
 }
+
+@test "Feature flags work correctly" {
+  vendored_ego=$GOPATH/src/github.com/compozed/travel-agent/vendor/github.com/benbjohnson/ego/cmd/ego/main.go
+  pushd $BATS_TEST_DIRNAME/../manifest
+  go run $vendored_ego -package main -o manifest.go
+  ACTUAL=$(go run manifest.go main.go travel-agent.yml)
+  popd
+  EXPECTED=$(cat expected.yml)
+  assert_equal "$EXPECTED" "$ACTUAL"
+}
