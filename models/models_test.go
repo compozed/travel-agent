@@ -157,6 +157,60 @@ var _ = Describe("Models", func() {
 				Expect(env.Feature("testFeature")).Should(Equal(""))
 			})
 		})
+		Describe("FeatureList", func() {
+			It("should return a list stringified objects of the feature", func() {
+				var env = Env{Features: map[interface{}]interface{}{"testFeature": []interface{}{"string"}}}
+				Expect(env.FeatureList("testFeature")).Should(Equal([]string{"string"}))
+			})
+			It("should stringify booleans", func() {
+				var env = Env{Features: map[interface{}]interface{}{"testFeature": []interface{}{true}}}
+				Expect(env.FeatureList("testFeature")).Should(Equal([]string{"true"}))
+			})
+			It("should stringify floats", func() {
+				var env = Env{Features: map[interface{}]interface{}{"testFeature": []interface{}{2.4}}}
+				Expect(env.FeatureList("testFeature")).Should(Equal([]string{"2.4"}))
+			})
+			It("should stringify ints", func() {
+				var env = Env{Features: map[interface{}]interface{}{"testFeature": []interface{}{42}}}
+				Expect(env.FeatureList("testFeature")).Should(Equal([]string{"42"}))
+			})
+			It("does not support maps as FeatureList values", func() {
+				testMaps := func() {
+					var env = Env{Features: map[interface{}]interface{}{"testFeature": map[interface{}]interface{}{"stuff": "value"}}}
+					env.FeatureList("testFeature")
+				}
+				Expect(testMaps).Should(Panic())
+			})
+			It("does not support arrays as FeatureList element values", func() {
+				testArrays := func() {
+					var env = Env{Features: map[interface{}]interface{}{
+						"testFeature": []interface{}{
+							[]interface{}{"stuff", "more stuff"},
+						}}}
+					env.FeatureList("testFeature")
+				}
+				Expect(testArrays).Should(Panic())
+			})
+			It("should stringify nulls as an empty list", func() {
+				var env = Env{Features: map[interface{}]interface{}{"testFeature": nil}}
+				Expect(env.FeatureList("testFeature")).Should(Equal([]string{}))
+			})
+			It("should return an empty list if the feature isn't defined", func() {
+				var env = Env{Features: map[interface{}]interface{}{}}
+				Expect(env.FeatureList("testFeature")).Should(Equal([]string{}))
+			})
+			It("Should panic if the value found with FeatureList is not actually a list", func() {
+				testValueNotList := func() {
+					var env = Env{Features: map[interface{}]interface{}{"testFeature": true}}
+					env.FeatureList("testFeature")
+				}
+				Expect(testValueNotList).Should(Panic())
+			})
+			It("should return an empty list (and not crash) if there are no features at all", func() {
+				var env = Env{}
+				Expect(env.FeatureList("testFeature")).Should(Equal([]string{}))
+			})
+		})
 	})
 
 	Describe("Group", func() {
