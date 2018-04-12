@@ -88,23 +88,23 @@ book() {
 
   clean
 
+  printf "${green}===> Rendering the ${magenta}.ego${green} manifest...${reset}"
   go run $vendored_ego -package main -o manifest.go
-
-  printf "${green}===> Generating manifest for enviroments provided by the travel-agent.yml config file ...${reset}"
   NAME=$(grep -E "^name:" $TRAVEL_AGENT_CONFIG | awk -F " " '{print $2}')
   mkdir -p .tmp
   go run manifest.go main.go $TRAVEL_AGENT_CONFIG > $pre_merged_manifest
   echo "${green}done${reset}"
 
-  printf "${green}===> Merging secrets from settings.yml into the generated manifest ...${reset}"
-
+  printf "${green}===> Authenticating to Vault via ${magenta}safe${green}...${reset}"
   export VAULT_ADDR="$(cat ~/.svtoken | grep '^vault:' | cut -d " " -f2)"
-  export VAULT_TOKEN="$(safe vault token-renew --format=json | jq -r '.auth.client_token')"
-  spruce --concourse merge --prune meta $pre_merged_manifest $FILES_TO_MERGE > $manifest
-
-
+  export VAULT_TOKEN="$(safe vault token renew --format=json | jq -r '.auth.client_token')"
   echo "${green}done${reset}"
 
+  printf "${green}===> ${magenta}spruce${green} merging secrets from settings.yml into the generated manifest ...${reset}"
+  spruce merge --prune meta $pre_merged_manifest $FILES_TO_MERGE > $manifest
+  echo "${green}done${reset}"
+
+  echo "${green}===> Updating concourse pipeline configuration via ${magenta}fly${green}...${reset}"
   fly -t concourse set-pipeline -c $manifest -p $NAME $fly_opts
 
   popd > /dev/null
