@@ -13,6 +13,7 @@ func main() {
 
 	config, err := LoadFromFile(os.Args[1])
 	if err != nil {
+		fmt.Fprintln(os.Stderr, "\nCould not parse travel-agent config file.")
 		panic(err)
 	}
 
