@@ -20,6 +20,6 @@ jobs:
 
 resources:
 <% for _, env := range config.Envs { %>
-- name: <%= fmt.Sprintf("%s-deployment", env.Name) %>
+- name: <%= env.Name + "-deployment" %>
   type: bosh-deployment
 <% } %>
