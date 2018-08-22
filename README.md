@@ -1,7 +1,7 @@
 Travel Agent
 ============
 
-Works together with **concourse.ci** to manage pipeline manifests.
+Works together with **concourse-ci.org** to manage pipeline manifests.
 
 ## Goals:
 
