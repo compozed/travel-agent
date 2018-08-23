@@ -97,7 +97,7 @@ book() {
 
   printf "${green}===> Authenticating to Vault via ${magenta}safe${green}...${reset}"
   export VAULT_ADDR="$(cat ~/.svtoken | grep '^vault:' | cut -d " " -f2)"
-  export VAULT_TOKEN="$(safe vault token renew --format=json | jq -r '.auth.client_token')"
+  export VAULT_TOKEN="$(safe vault token-renew --format=json | jq -r '.auth.client_token')"
   echo "${green}done${reset}"
 
   printf "${green}===> ${magenta}spruce${green} merging secrets from settings.yml into the generated manifest ...${reset}"
