@@ -54,7 +54,7 @@ example:
 
 ## Contributing
 
-See our [CONTRUBUTING](CONTRIBUTING.md) section for more information.
+See our [CONTRIBUTING](CONTRIBUTING.md) section for more information.
 
 
 ## License
