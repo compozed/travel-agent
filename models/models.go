@@ -9,19 +9,24 @@ import (
 )
 
 type Config struct {
-	Name   string  `yaml:"name"`   // Supporting both JSON and YAML.
-	Envs   []Env   `yaml:"envs"`   // Supporting both JSON and YAML.
-	Groups []Group `yaml:"groups"` // Supporting both JSON and YAML.
+	Name      string     `yaml:"name"` // Supporting both JSON and YAML.
+	Envs      []Env      `yaml:"envs"`
+	Groups    []Group    `yaml:"groups"`
+	Resources []Resource `yaml:"resources"`
 }
 
 type Env struct {
-	Name      string                      `yaml:"name"`       // Supporting both JSON and YAML.
-	DependsOn []string                    `yaml:"depends_on"` // Supporting both JSON and YAML.
+	Name      string                      `yaml:"name"`
+	DependsOn []string                    `yaml:"depends_on"`
 	Features  map[interface{}]interface{} `yaml:"features"`
 }
 
+type Resource struct {
+	Name string `yaml:"name"`
+}
+
 type Group struct {
-	Name string `yaml:"name"` // Supporting both JSON and YAML.
+	Name string `yaml:"name"`
 }
 
 func (f *Env) GetDependsOn() string {
@@ -98,6 +103,9 @@ func Load(y []byte) (Config, error) {
 		if env.Features == nil {
 			config.Envs[index].Features = map[interface{}]interface{}{}
 		}
+	}
+	if config.Resources == nil {
+		config.Resources = []Resource{}
 	}
 
 	return config, err

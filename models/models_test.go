@@ -12,6 +12,7 @@ var _ = Describe("Models", func() {
 	var config Config
 	var envs []Env
 	var groups []Group
+	var resources []Resource
 
 	BeforeEach(func() {
 		envs = nil
@@ -21,9 +22,13 @@ var _ = Describe("Models", func() {
 		groups = nil
 		groups = append(groups, Group{Name: "platform"})
 
+		resources = nil
+		resources = append(resources, Resource{Name: "jumpbox"})
+
 		config.Envs = envs
 		config.Name = "FOO"
 		config.Groups = groups
+		config.Resources = resources
 	})
 
 	Describe("Load", func() {
@@ -223,6 +228,20 @@ var _ = Describe("Models", func() {
 				Expect(err).ShouldNot(HaveOccurred())
 
 				Expect(expected.Groups[0].Name).Should(Equal("platform"))
+			})
+		})
+	})
+
+	Describe("Resource", func() {
+		Describe("Get a resource", func() {
+			It("should return a resourcename", func() {
+				var err error
+				var expected Config
+
+				expected, err = LoadFromFile("example.yml")
+				Expect(err).ShouldNot(HaveOccurred())
+
+				Expect(expected.Resources[0].Name).Should(Equal("jumpbox"))
 			})
 		})
 	})
