@@ -6,3 +6,7 @@ envs:
   features:
     check_for_existence: true
     grab_value: alwaysRetrieveThis
+resources:
+- name: resource-to-be-merged
+  source: {}
+  type: some-resource

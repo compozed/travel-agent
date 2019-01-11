@@ -4,40 +4,35 @@ set -e
 
 source $GOPATH/src/github.com/compozed/travel-agent/bin/common.sh
 
-red=`tput setaf 1`
-green=`tput setaf 2`
-yellow=`tput setaf 3`
-magenta=`tput setaf 5`
-reset=`tput sgr0`
-
 conf_dir=~/.travel-agent
 
 init(){
   NAME=$1
 
+  local manifest_folder=$GOPATH/src/github.com/compozed/travel-agent/manifest
+
   if [  -z "$NAME" ]
   then
-    echo "${red}You must provide a concourse target${reset}"
+    log_error "You must provide a concourse target \n"
     echo ''
     echo 'USAGE: ./travel-agent init NAME'
     exit 1
   fi
 
-  manifest_folder=$GOPATH/src/github.com/compozed/travel-agent/manifest
   mkdir -p ci && cp -rn $manifest_folder ci/. 2>/dev/null || :
 }
 
 
 
-upgrade-travel-agent(){
-manifest_folder=$GOPATH/src/github.com/compozed/travel-agent/manifest
-mkdir -p ci && cp -rn $manifest_folder ci/. 2>/dev/null || :
+function upgrade-travel-agent(){
+  local manifest_folder=$GOPATH/src/github.com/compozed/travel-agent/manifest
+  mkdir -p ci && cp -rn $manifest_folder ci/. 2>/dev/null || :
 
-pushd ci/manifest > /dev/null
-cp $manifest_folder/manifest_test.go .
-cp $manifest_folder/manifest_suite_test.go .
-cp $manifest_folder/main.go .
-popd > /dev/null
+  pushd ci/manifest > /dev/null
+    cp $manifest_folder/manifest_test.go .
+    cp $manifest_folder/manifest_suite_test.go .
+    cp $manifest_folder/main.go .
+  popd > /dev/null
 
 }
 
