@@ -126,6 +126,7 @@ var _ = Describe("Models", func() {
 				Expect(config.Feature("testFeature")).Should(Equal(""))
 			})
 		})
+
 		Describe("FeatureList", func() {
 			It("should return a list stringified objects of the feature", func() {
 				var config = Config{Features: map[interface{}]interface{}{"testFeature": []interface{}{"string"}}}
@@ -178,6 +179,42 @@ var _ = Describe("Models", func() {
 			It("should return an empty list (and not crash) if there are no features at all", func() {
 				var config = Config{}
 				Expect(config.FeatureList("testFeature")).Should(Equal([]string{}))
+			})
+		})
+		Describe("HasEnvsWithFeature", func() {
+			It("should be true when any env has feature", func() {
+				var env1 = Env{}
+				var env2 = Env{Features: map[interface{}]interface{}{"allow_destroy": "true"}}
+
+				var config = Config{Envs: []Env{env1, env2}}
+
+				Expect(config.HasEnvsWithFeature("allow_destroy")).Should(BeTrue())
+			})
+			It("should be false when no env has feature", func() {
+				var env1 = Env{}
+				var env2 = Env{}
+
+				var config = Config{Envs: []Env{env1, env2}}
+
+				Expect(config.HasEnvsWithFeature("allow_destroy")).Should(BeFalse())
+			})
+		})
+		Describe("HasEnvsWithFeature", func() {
+			It("should be true when any env has feature", func() {
+				var env1 = Env{}
+				var env2 = Env{Features: map[interface{}]interface{}{"allow_destroy": "true"}}
+
+				var config = Config{Envs: []Env{env1, env2}}
+
+				Expect(config.EnvsWithFeature("allow_destroy")[0]).Should(Equal(env2))
+			})
+			It("should be false when no env has feature", func() {
+				var env1 = Env{}
+				var env2 = Env{}
+
+				var config = Config{Envs: []Env{env1, env2}}
+
+				Expect(config.EnvsWithFeature("allow_destroy")).Should(BeEmpty())
 			})
 		})
 	})
@@ -268,6 +305,7 @@ var _ = Describe("Models", func() {
 				Expect(env.Feature("testFeature")).Should(Equal(""))
 			})
 		})
+
 		Describe("FeatureList", func() {
 			It("should return a list stringified objects of the feature", func() {
 				var env = Env{Features: map[interface{}]interface{}{"testFeature": []interface{}{"string"}}}

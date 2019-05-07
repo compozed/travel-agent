@@ -48,6 +48,29 @@ func (c *Config) getFeatures() map[interface{}]interface{} {
 	return c.Features
 }
 
+func (c *Config) HasEnvsWithFeature(feature string) bool {
+	hasFeature := false
+
+	for _, env := range c.Envs {
+		if env.HasFeature(feature) {
+			hasFeature = true
+		}
+	}
+
+	return hasFeature
+}
+func (c *Config) EnvsWithFeature(feature string) []Env {
+	envs := []Env{}
+
+	for _, env := range c.Envs {
+		if env.HasFeature(feature) {
+			envs = append(envs, env)
+		}
+	}
+
+	return envs
+}
+
 func (f *Env) GetDependsOnArray() []string {
 	return f.DependsOn
 }
