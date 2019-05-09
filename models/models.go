@@ -8,11 +8,18 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type featureEnabled interface {
+	HasFeature(string) bool
+	Feature(string) string
+	getFeatures() map[interface{}]interface{}
+}
+
 type Config struct {
-	Name      string     `yaml:"name"` // Supporting both JSON and YAML.
-	Envs      []Env      `yaml:"envs"`
-	Groups    []Group    `yaml:"groups"`
-	Resources []Resource `yaml:"resources"`
+	Name      string                      `yaml:"name"` // Supporting both JSON and YAML.
+	Envs      []Env                       `yaml:"envs"`
+	Groups    []Group                     `yaml:"groups"`
+	Resources []Resource                  `yaml:"resources"`
+	Features  map[interface{}]interface{} `yaml:"features"`
 }
 
 type Env struct {
@@ -33,6 +40,37 @@ func (f *Env) GetDependsOn() string {
 	return fmt.Sprintf("[%s]", strings.Join(f.DependsOn, ","))
 }
 
+func (e *Env) getFeatures() map[interface{}]interface{} {
+	return e.Features
+}
+
+func (c *Config) getFeatures() map[interface{}]interface{} {
+	return c.Features
+}
+
+func (c *Config) HasEnvsWithFeature(feature string) bool {
+	hasFeature := false
+
+	for _, env := range c.Envs {
+		if env.HasFeature(feature) {
+			hasFeature = true
+		}
+	}
+
+	return hasFeature
+}
+func (c *Config) EnvsWithFeature(feature string) []Env {
+	envs := []Env{}
+
+	for _, env := range c.Envs {
+		if env.HasFeature(feature) {
+			envs = append(envs, env)
+		}
+	}
+
+	return envs
+}
+
 func (f *Env) GetDependsOnArray() []string {
 	return f.DependsOn
 }
@@ -46,12 +84,31 @@ func (e *Env) HasDependencies() bool {
 }
 
 func (e *Env) HasFeature(feature string) bool {
-	_, ok := e.Features[feature]
-	return ok
+	return hasFeature(e, feature)
+}
+
+func (c *Config) HasFeature(feature string) bool {
+	return hasFeature(c, feature)
+}
+
+func hasFeature(o featureEnabled, feature string) bool {
+	err, _ := o.getFeatures()[feature]
+	if err != nil {
+		return true
+	}
+	return false
 }
 
 func (e *Env) Feature(feature string) string {
-	if v, ok := e.Features[feature]; ok {
+	return getFeature(e, feature)
+}
+
+func (c *Config) Feature(feature string) string {
+	return getFeature(c, feature)
+}
+
+func getFeature(o featureEnabled, feature string) string {
+	if v, ok := o.getFeatures()[feature]; ok {
 		if v == nil {
 			return ""
 		}
@@ -68,7 +125,15 @@ func (e *Env) Feature(feature string) string {
 }
 
 func (e *Env) FeatureList(feature string) []string {
-	if v, ok := e.Features[feature]; ok {
+	return getFeatureList(e, feature)
+}
+
+func (c *Config) FeatureList(feature string) []string {
+	return getFeatureList(c, feature)
+}
+
+func getFeatureList(o featureEnabled, feature string) []string {
+	if v, ok := o.getFeatures()[feature]; ok {
 		if v == nil {
 			return []string{}
 		}
@@ -106,6 +171,9 @@ func Load(y []byte) (Config, error) {
 	}
 	if config.Resources == nil {
 		config.Resources = []Resource{}
+	}
+	if config.Features == nil {
+		config.Features = map[interface{}]interface{}{}
 	}
 
 	return config, err

@@ -1,56 +1,55 @@
 Travel Agent
 ============
 
-Works together with **concourse-ci.org** to manage pipeline manifests.
+Works together with [concourse](https://concourse-ci.org) to manage pipeline manifests. This tool can be useful when 
+having 1 pipeline that deploys to multiple environments.
 
 ## Goals:
 
-**DRY pipeline manifests:** When pipelines perform the same task or deployment on multiple enviroments, manifests start getting large and repetitive.
-Travel-agent addresses this issue by turning the pipeline manifest into a dynamic template
+**DRY pipeline manifests:** When a pipelines perform the same steps to deploy in multiple environments, manifests start 
+getting large and repetitive.  Travel-agent addresses this issue by turning the pipeline manifest into a dynamic template.
 
 ## Installing
-
-Make sure that your go environment is correctly set up on your workstation.
 
     go get -d github.com/compozed/travel-agent/manifest
     ln -s $GOPATH/src/github.com/compozed/travel-agent/bin/travel-agent $GOPATH/bin/.
 
 ## Usage
 
-### Target
-
-Travel-Agent sets your concourse target
+### Target concourse
 
     ./travel-agent target CONCOURSE_IP:PORT
 
-### bootstrap
+### Generate project
 
-Generates travel agent structure in `ci/manifest`
+    cd PROJECT_NAME
+    travel-agent init
 
-    cd YOUR_PROJECT
-    ./travel-agent init
+[Customizing pipeline template](/docs/customizing_pipeline_templates.md)
 
-### Book
+### Configure pipeline
 
-    ./travel-agent book [TRAVEL_AGENT_CONFIG_PATH] [SPRUCE_SETTINGS_PATH]
 
-1. It will try to generate your manifest base on your `TRAVEL_AGENT_CONFIG`
-1. If `SPRUCE_SETTINGS_PATH` is provided, it tries to spruce merge with the newly generated manifest
-1. It tries to deploy to concourse
+example `travel-agent.yml`:
 
-#### TRAVEL_AGENT_CONFIG
-
-example:
-
-    name: FOO
-    git_project: https://github.com/compozed/travel-agent-example.git
-    # git_project: /full/path/to/your/travel-agent-project
+    name: PIPELINE_NAME
+    git_project: https://github.com/ORG/PROJECT_NAME.git
+    # git_project: local/path/to/PROJECT_NAME
     envs:
     - name: dev
     - name: prod
       depends_on:
       - dev
 
+[Configuring pipeline deployment](/docs/configuring_pipeline_deployment.md)
+
+### Set concourse pipeline
+
+    travel-agent book path/to/travel-agent.yml settingy1.yml
+
+1. It will try to generate your manifest base on your `path/to/travel-agent.yml` config file
+1. If `SPRUCE_SETTINGS_PATH` is provided, it tries to spruce merge with the newly generated manifest
+1. It tries to deploy to concourse
 
 ## Contributing
 
