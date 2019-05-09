@@ -1,3 +1,14 @@
+#!/usr/bin/env bash
+
+exec >&2
+set -e
+
+if [[ "${DEBUG,,}" == "true" ]]; then
+  set -x
+  echo "Environment Variables:"
+  env
+fi
+
 OUTPUT=.tmp
 VENDORED_EGO=$GOPATH/src/github.com/compozed/travel-agent/vendor/github.com/benbjohnson/ego/cmd/ego/main.go
 
