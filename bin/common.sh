@@ -28,6 +28,7 @@ function log_error() {
 
 function target(){
   TARGET=$1
+  TEAM=$2
 
   if [  -z "$TARGET" ]; then
     log_error "You must provide a concourse target"
@@ -35,8 +36,12 @@ function target(){
     echo 'USAGE: ./travel-agent target CONCOURSE_TARGET. eg: http://ATC_IP:8080'
     exit 1
   fi
+  
+  if [ -z "$TEAM" ]; then
+    TEAM="main"
+  fi
 
-    fly -t concourse login -k -c $TARGET
+  fly -t concourse login -k -c $TARGET -n $TEAM
 }
 
 function clean(){
