@@ -3,7 +3,7 @@
 exec >&2
 set -e
 
-if [[ "${DEBUG,,}" == "true" ]]; then
+if [[ "${DEBUG}" == "true" ]]; then
   set -x
   echo "Environment Variables:"
   env
