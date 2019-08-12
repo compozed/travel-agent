@@ -63,7 +63,7 @@ if [[ $1 =~ ^(help|target|init|book)$ ]]; then
       help
       ;;
     target)
-      target $2
+      target $2 $3
       ;;
     init)
       init $2
