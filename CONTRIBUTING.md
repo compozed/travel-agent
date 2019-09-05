@@ -15,7 +15,7 @@ We use GitHub to manage reviews of pull requests.
 - Run **all** the tests to assure nothing else was accidentally broken.
 - Create a pull request and include the platform team `@compozed/platform` in the description.
 - Ensure all pull request checks (such as continuous integration) are passing.
-- [Sign our Contributing License Agreement] (https://compozed-cla.cfapps.io/agreements/compozed/travel-agent "Compozed CLA") if this is your first contribution.
+- If you have not previously done so, please fill out and submit the [Contributor License Agreement](https://compozed-cla.cfapps.io/sign/compozed).
 
 
 ## Adding Features
