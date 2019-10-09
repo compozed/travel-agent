@@ -199,8 +199,8 @@ var _ = Describe("Models", func() {
 				Expect(config.HasEnvsWithFeature("allow_destroy")).Should(BeFalse())
 			})
 		})
-		Describe("HasEnvsWithFeature", func() {
-			It("should be true when any env has feature", func() {
+		Describe("EnvsWithFeature", func() {
+			It("should return a list of the available envs that include the feature", func() {
 				var env1 = Env{}
 				var env2 = Env{Features: map[interface{}]interface{}{"allow_destroy": "true"}}
 
@@ -208,13 +208,25 @@ var _ = Describe("Models", func() {
 
 				Expect(config.EnvsWithFeature("allow_destroy")[0]).Should(Equal(env2))
 			})
-			It("should be false when no env has feature", func() {
+			It("should be empry when no env has feature", func() {
 				var env1 = Env{}
 				var env2 = Env{}
 
 				var config = Config{Envs: []Env{env1, env2}}
 
 				Expect(config.EnvsWithFeature("allow_destroy")).Should(BeEmpty())
+			})
+		})
+		Describe("EnvsFeatures", func() {
+			It("should return an uniq list of all the feature names available in all envs", func() {
+				var env1 = Env{Features: map[interface{}]interface{}{"feature-1": "true"}}
+				var env2 = Env{Features: map[interface{}]interface{}{"feature-2": "true"}}
+				var env3 = Env{Features: map[interface{}]interface{}{"feature-2": "true"}}
+
+				var config = Config{Envs: []Env{env1, env2, env3}}
+
+				Expect(config.EnvsFeatures()).Should(HaveLen(2))
+				Expect(config.EnvsFeatures()).Should(Equal([]string{"feature-1", "feature-2"}))
 			})
 		})
 	})

@@ -71,6 +71,23 @@ func (c *Config) EnvsWithFeature(feature string) []Env {
 	return envs
 }
 
+func (c *Config) EnvsFeatures() []string {
+	set := make(map[string]bool)
+	featureList := []string{}
+
+	for _, env := range c.Envs {
+		for feature := range env.getFeatures() {
+			set[feature.(string)] = true
+		}
+	}
+
+	for key := range set {
+		featureList = append(featureList, key)
+	}
+
+	return featureList
+}
+
 func (f *Env) GetDependsOnArray() []string {
 	return f.DependsOn
 }
