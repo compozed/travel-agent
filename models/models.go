@@ -132,6 +132,14 @@ func (c *Config) FeatureList(feature string) []string {
 	return getFeatureList(c, feature)
 }
 
+func (c *Config) GenericFeature(feature string) interface{} {
+	return getGenericFeature(c, feature)
+}
+
+func getGenericFeature(o featureEnabled, feature string) interface{} {
+	return o.getFeatures()[feature]
+}
+
 func getFeatureList(o featureEnabled, feature string) []string {
 	if v, ok := o.getFeatures()[feature]; ok {
 		if v == nil {

@@ -181,6 +181,28 @@ var _ = Describe("Models", func() {
 				Expect(config.FeatureList("testFeature")).Should(Equal([]string{}))
 			})
 		})
+		Describe("GenericFeature", func() {
+			It("should return an interface that can be cast to a string of the feature", func() {
+				var config = Config{
+					Features: map[interface{}]interface{}{
+						"testFeature": "string",
+					},
+				}
+				featureString, ok := config.GenericFeature("testFeature").(string)
+				Expect(ok).To(BeTrue())
+				Expect(featureString).To(Equal("string"))
+			})
+			It("should return an interface that can be cast to a int of the feature", func() {
+				var config = Config{
+					Features: map[interface{}]interface{}{
+						"testFeature": 420,
+					},
+				}
+				featureInt, ok := config.GenericFeature("testFeature").(int)
+				Expect(ok).To(BeTrue())
+				Expect(featureInt).To(Equal(420))
+			})
+		})
 		Describe("HasEnvsWithFeature", func() {
 			It("should be true when any env has feature", func() {
 				var env1 = Env{}
