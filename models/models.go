@@ -136,6 +136,10 @@ func (c *Config) GenericFeature(feature string) interface{} {
 	return getGenericFeature(c, feature)
 }
 
+func (e *Env) GenericFeature(feature string) interface{} {
+	return getGenericFeature(e, feature)
+}
+
 func getGenericFeature(o featureEnabled, feature string) interface{} {
 	return o.getFeatures()[feature]
 }
