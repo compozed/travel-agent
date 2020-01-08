@@ -36,7 +36,7 @@ function target(){
     echo 'USAGE: ./travel-agent target CONCOURSE_TARGET. eg: http://ATC_IP:8080'
     exit 1
   fi
-  
+
   if [ -z "$TEAM" ]; then
     TEAM="main"
   fi
@@ -86,6 +86,16 @@ book        - compiles and deploys manifest.ego (manifest.ego)
 EOM
 }
 
+function get_prop(){
+  local prop_name=$1
+  local default_value=$2
+  local value=$(grep -E "^$prop_name:" $TRAVEL_AGENT_CONFIG | awk -F " " '{print $2}')
+
+  value=${value:-$default_value}
+
+  echo $value
+}
+
 function book() {
   TRAVEL_AGENT_CONFIG=$1
   shift
@@ -105,13 +115,12 @@ function book() {
   fi
 
   if [ -n "$TRAVEL_AGENT_CONFIG" ] ; then
-    TRAVEL_AGENT_PROJECT=$( \
-      cat "$TRAVEL_AGENT_CONFIG" | \
-      grep -v -e "^#" | \
-      grep -e "^git_project:" |  \
-      awk -F"git_project:" '{print $2}' )
+    local travel_agent_project=$(get_prop "git_project")
+    local pipeline_name=$(get_prop "name")
+    local expose_pipeline=$(get_prop "expose_pipeline" "false")
+    local concourse_target=$(get_prop "target" "concourse")
 
-    clone_project "$TRAVEL_AGENT_PROJECT"
+    clone_project "$travel_agent_project"
   fi
 
   if ! [ -d "ci/manifest" ]; then
@@ -123,25 +132,27 @@ function book() {
 
   clean
 
-  log "===> Rendering the ${magenta}.ego${green} manifest..."
-  go run $VENDORED_EGO -package main -o manifest.go
-  NAME=$(grep -E "^name:" $TRAVEL_AGENT_CONFIG | awk -F " " '{print $2}')
+  log "===> Rendering the ${magenta}${pipeline_name}${green} manifest..."
+  TMPDIR=~/tmp go run $VENDORED_EGO -package main -o manifest.go
   mkdir -p .tmp
-  go run manifest.go main.go $TRAVEL_AGENT_CONFIG > $pre_merged_manifest
+  TMPDIR=~/tmp go run manifest.go main.go $TRAVEL_AGENT_CONFIG > $pre_merged_manifest
   echo "${green}done${reset}"
 
   log "===> Authenticating to Vault via ${magenta}safe..."
   export VAULT_ADDR="$(cat ~/.svtoken | grep '^vault:' | cut -d " " -f2)"
-  export VAULT_TOKEN="$(safe vault token-renew --format=json | jq -r '.auth.client_token')"
+  export VAULT_TOKEN="$(safe vault token renew --format=json | jq -r '.auth.client_token')"
   log "done\n"
 
   log "===> ${magenta}spruce${green} merging secrets from settings.yml into the generated manifest ..."
-  spruce merge --prune meta --prune envs --prune git_project --prune name \
+  spruce merge --prune meta --prune target --prune expose_pipeline --prune envs --prune git_project --prune name \
     $TRAVEL_AGENT_CONFIG $pre_merged_manifest $FILES_TO_MERGE > $manifest
   log "done\n"
 
-  log "===> Updating concourse pipeline configuration via ${magenta}fly${green}..."
-  fly -t concourse set-pipeline --check-creds -c $manifest -p $NAME $fly_opts
+  log "===> Updating $concourse_target pipeline configuration via ${magenta}fly${green}..."
+  fly -t $concourse_target set-pipeline -c $manifest -p $pipeline_name $fly_opts
 
+  if [[ "$expose_pipeline" == "true" ]]; then
+    fly -t $concourse_target expose-pipeline --pipeline $pipeline_name
+  fi
   popd > /dev/null
 }

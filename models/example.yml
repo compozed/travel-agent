@@ -1,5 +1,6 @@
 ---
 name: FOO
+target: concourse-alias
 envs:
 - name: dev
 - name: prod

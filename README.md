@@ -1,12 +1,12 @@
 Travel Agent
 ============
 
-Works together with [concourse](https://concourse-ci.org) to manage pipeline manifests. This tool can be useful when 
+Works together with [concourse](https://concourse-ci.org) to manage pipeline manifests. This tool can be useful when
 having 1 pipeline that deploys to multiple environments.
 
 ## Goals:
 
-**DRY pipeline manifests:** When a pipelines perform the same steps to deploy in multiple environments, manifests start 
+**DRY pipeline manifests:** When a pipelines perform the same steps to deploy in multiple environments, manifests start
 getting large and repetitive.  Travel-agent addresses this issue by turning the pipeline manifest into a dynamic template.
 
 ## Installing
@@ -33,8 +33,8 @@ getting large and repetitive.  Travel-agent addresses this issue by turning the 
 example `travel-agent.yml`:
 
     name: PIPELINE_NAME
-    git_project: https://github.com/ORG/PROJECT_NAME.git
-    # git_project: local/path/to/PROJECT_NAME
+    git_project: https://github.com/ORG/PROJECT_NAME.git # Supports local/path/to/PROJECT_NAME
+    target: concourse-alias # Optional. Defaults to: concourse
     envs:
     - name: dev
     - name: prod
